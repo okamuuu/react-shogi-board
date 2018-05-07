@@ -6,8 +6,12 @@
     "json-kifu-format": "^1.2.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
+    "react-icon-base": "^2.1.2",
     "react-icons": "^2.2.7",
+    "react-inlinesvg": "^0.8.1",
     "react-scripts": "1.1.4",
+    "react-svg": "^3.0.2",
+    "react-svgmt": "^1.1.2",
     "shogi.js": "^2.0.1",
     "styled-components": "^3.2.6"
   },

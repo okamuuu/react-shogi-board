@@ -1,9 +1,11 @@
 // import { JKFPlayer } from "json-kifu-format";
 import React, { Component } from "react";
 import styled, { css } from "styled-components";
-// import Piece from "./Piece";
+import Fuhyo from "./pieces/Fuhyo";
 // import KifuStore from "./stores/KifuStore";
 
+
+const fontSize = "1em";
 const borderColor = "#666";
 
 const GameBoard = styled.div`
@@ -41,6 +43,13 @@ const Box = styled.div`
       background: ${borderColor};
     }
   `}
+`
+
+const Piece = styled.div`
+  color: #222;
+  font-family: Helvetica;
+  font-weight: bold;
+
 `
 
 
@@ -107,8 +116,8 @@ export default class Board extends Component {
             return sideNavNumbers.map(x => {
               if ((x === 3 || x === 6) && (y === 3 || y === 6)) {
                 return (
-                  <Box dot key={""+y+x}>
-                    {""+y+x}
+                  <Box dot color={"#222"} key={""+y+x}>
+                    <Fuhyo color="#666" />
                   </Box>
                 )
               }
@@ -118,6 +127,8 @@ export default class Board extends Component {
             })
           })}
         </GameBoard>
+        <div style={{width: 30, height: 30}}>
+        </div>
       </div>
     );
 
