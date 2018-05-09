@@ -5,7 +5,7 @@ import Fuhyo from "./pieces/Fuhyo";
 // import KifuStore from "./stores/KifuStore";
 
 
-const fontSize = "1em";
+// const fontSize = "1em";
 const borderColor = "#666";
 
 const GameBoard = styled.div`
@@ -45,68 +45,16 @@ const Box = styled.div`
   `}
 `
 
-const Piece = styled.div`
-  color: #222;
-  font-family: Helvetica;
-  font-weight: bold;
-
-`
-
-
 export default class Board extends Component {
 
   render() {
-    // const { reversed, player } = this.props.kifuStore;
-    //     const { reversed, player } = kifuStore;
-    //     const board = player.getState().board;
-    //     const lastMove = player.getMove();
-    //     const nineY = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    //     const nineX = nineY.slice().reverse();
-    //
-    //     const ths = nineX.map((logicalX) => {
-    //         const x = reversed ? 10 - logicalX : logicalX;
-    //         return <th key={x}>{x}</th>;
-    //     });
-    //
-    //     const trs = nineY.map((logicalY) => {
-    //         const y = reversed ? 10 - logicalY : logicalY;
-    //         const pieces = nineX.map((logicalX) => {
-    //             const x = reversed ? 10 - logicalX : logicalX;
-    //             return (
-    //                 <Piece
-    //                     key={x}
-    //                     data={board[x - 1][y - 1]}
-    //                     x={x}
-    //                     y={y}
-    //                     lastMove={lastMove}
-    //                     kifuStore={this.props.kifuStore}
-    //                 />
-    //             );
-    //         });
-    //         return (
-    //             <tr key={y}>
-    //                 {pieces}
-    //                 <th>{JKFPlayer.numToKan(y)}</th>
-    //             </tr>
-    //         );
-    //     });
-
-    //     return (
-    //         <table className="ban">
-    //             <tbody>
-    //                 <tr>{ths}</tr>
-    //                 {trs}
-    //             </tbody>
-    //         </table>
-    //     );
-
     const isReversed = false;
     const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-    // 通常は 9, 8, 7 ...
+    // 先手番視点では左から 9, 8, 7 ...
     const headNavNumbers = isReversed ? numbers : numbers.reverse();
 
-    // 通常は 一, 二, 三 ...
+    // 先手番視点では上から 一, 二, 三 ...
     const sideNavNumbers = isReversed ? numbers.reverse() : numbers;
 
     return (
