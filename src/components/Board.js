@@ -1,9 +1,14 @@
 // import { JKFPlayer } from "json-kifu-format";
 import React, { Component } from "react";
 import styled, { css } from "styled-components";
-import Fuhyo from "./pieces/Fuhyo";
+import Piece from "./Piece";
 // import KifuStore from "./stores/KifuStore";
 
+
+const Color = {
+  Black: 0,
+  White: 1
+};
 
 // const fontSize = "1em";
 const borderColor = "#666";
@@ -48,6 +53,11 @@ const Box = styled.div`
 export default class Board extends Component {
 
   render() {
+
+    const { rows } = this.props;
+
+    console.log(rows);
+
     const isReversed = false;
     const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -60,12 +70,22 @@ export default class Board extends Component {
     return (
       <div>
         <GameBoard>
+          {rows.map((row, i) => (
+            row.map((col, j) => (
+              <Box color={"#222"} key={""+i+j}>
+                {col && (<Piece color={col.color} kind={col.kind} />)}
+              </Box>
+            ))
+          ))}
+        </GameBoard>
+        {/*
+        <GameBoard>
           {headNavNumbers.map(y => {
             return sideNavNumbers.map(x => {
               if ((x === 3 || x === 6) && (y === 3 || y === 6)) {
                 return (
                   <Box dot color={"#222"} key={""+y+x}>
-                    <Fuhyo color="#666" />
+                    <Piece color="#666" kind="HU" />
                   </Box>
                 )
               }
@@ -75,6 +95,7 @@ export default class Board extends Component {
             })
           })}
         </GameBoard>
+        */}
         <div style={{width: 30, height: 30}}>
         </div>
       </div>

@@ -4,6 +4,7 @@ import logo from './logo.svg';
 import './App.css';
 import { PRESET, MOVE_DEF } from './Constants';
 import Board from './components/Board';
+import PieceModel from './models/Piece';
 
 class App extends Component {
   render() {
@@ -11,7 +12,8 @@ class App extends Component {
     const { board, turn } = PRESET.HIRATE;
     const rows = board.map(row => {
       const csa = _.times(9, j => {
-        return row.slice(24 - j * 3, 24 - j * 3 + 3);
+        const target = row.slice(24 - j * 3, 24 - j * 3 + 3);
+        return target === " * " ? null : new PieceModel(target);
       });
       return csa;
     })
@@ -28,7 +30,7 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
-        <Board />
+        <Board rows={rows} />
       </div>
     );
   }
