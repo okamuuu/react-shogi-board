@@ -1,6 +1,10 @@
 import _ from 'lodash'
 import { PRESET, MOVE_DEF } from '../Constants';
 import PieceModel from '../models/Piece';
+// TODO: should I set player to redux state ? It's a bussiness model to calculate complex data.
+import { JKFPlayer } from "json-kifu-format";
+import kifu from './../data/kifu.demo.js';
+let player = JKFPlayer.parseKIF(kifu);
 
 export const SET_BOARD = 'SET_BOARD';
 
@@ -14,17 +18,20 @@ function setBoard(board) {
 }
 
 // Interface Layer
-export function initGame(preset=PRESET.HIRATE) {
+export function initGame() {
 
-  // TODO: I want to move Business Logic from here. But still I'm not sure where to move.
-  const { board, turn } = preset;
-  const rows = board.map(row => {
-    const csa = _.times(9, j => {
-      const target = row.slice(24 - j * 3, 24 - j * 3 + 3);
-      return target === " * " ? null : new PieceModel(target);
-    });
-    return csa;
-  })
+  const { board, turn } = player.shogi;
 
-  return setBoard(rows);
+  return setBoard(board);
+}
+
+export function forwardGame() {
+  console.log("forward");
+  player.forward();
+  console.log(player.getReadableKifu());
+  const { board, turn } = player.shogi;
+
+  console.log(board);
+
+  return setBoard(board);
 }
