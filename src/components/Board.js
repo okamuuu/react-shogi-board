@@ -4,7 +4,6 @@ import styled, { css } from "styled-components";
 import Piece from "./Piece";
 // import KifuStore from "./stores/KifuStore";
 
-
 const Color = {
   Black: 0,
   White: 1
@@ -58,22 +57,35 @@ export default class Board extends Component {
 
     const isReversed = false;
     const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const reverseNumbers = [9, 8, 7, 6, 5, 4, 3, 2, 1];
 
     // 先手番視点では左から 9, 8, 7 ...
-    const headNavNumbers = isReversed ? numbers : numbers.reverse();
+    const headNavNumbers = isReversed ? numbers : reverseNumbers;
 
     // 先手番視点では上から 一, 二, 三 ...
-    const sideNavNumbers = isReversed ? numbers.reverse() : numbers;
+    const sideNavNumbers = isReversed ? reverseNumbers : numbers;
+
+    const gameRows = [];
+
+    if (rows.length > 0) {
+      sideNavNumbers.forEach(y => {
+        headNavNumbers.forEach(x => {
+          const peace = rows[x-1][y-1] || {};
+          peace.key = x + "-" + y;
+          gameRows.push(peace);
+        })
+      })
+    }
 
     return (
       <div>
         <GameBoard>
-          {rows.map((row, i) => (
-            row.map((col, j) => (
-              <Box color={"#222"} key={""+i+j}>
-                {col && (<Piece color={col.color} kind={col.kind} />)}
-              </Box>
-            ))
+          {gameRows.map(peace => (
+            <Box color={"#222"} key={peace.key}>
+              {
+                peace && (<Piece color={peace.color} kind={peace.kind} />)
+              }
+            </Box>
           ))}
         </GameBoard>
         {/*

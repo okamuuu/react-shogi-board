@@ -28,12 +28,14 @@ export function initGame() {
 export function forwardGame() {
   player.forward();
   const { board, turn } = player.shogi;
+  console.log(player.getReadableKifu());
   return setBoard(board);
 }
 
 export function backwardGame() {
   player.backward();
   const { board, turn } = player.shogi;
+  console.log(player.getReadableKifu());
   return setBoard(board);
 }
 
