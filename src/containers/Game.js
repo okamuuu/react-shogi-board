@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash'
 import { connect } from 'react-redux'
-import { initGame, forwardGame } from '../actions'
+import { initGame, forwardGame, backwardGame } from '../actions'
 import Board from '../components/Board'
 import Button from '../components/Button'
 import { PRESET, MOVE_DEF } from '../Constants';
@@ -14,21 +14,13 @@ class Game extends Component {
     initGame();
   }
 
-  componentWillReceiveProps(nextProps) {
-    console.log("componentWillReceiveProps");
-    console.log(nextProps);
-
-  }
-
   render() {
-    const { board, forwardGame } = this.props;
-    console.log("render");
-    console.log(this.props.board);
+    const { board, forwardGame, backwardGame } = this.props;
     return (
       <div>
         <Board rows={this.props.board} />
         <div style={{textAlign: `center`}}>
-          <Button>Prev</Button>
+          <Button onClick={() => backwardGame() }>Prev</Button>
           <Button onClick={() => forwardGame() }>Next</Button>
         </div>
       </div>
@@ -42,6 +34,7 @@ export default connect(
   }),
   dispatch => ({
     initGame: () => dispatch(initGame()),
-    forwardGame: () => dispatch(forwardGame())
+    forwardGame: () => dispatch(forwardGame()),
+    backwardGame: () => dispatch(backwardGame())
   })
 )(Game)
