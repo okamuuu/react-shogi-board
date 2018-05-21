@@ -1,32 +1,29 @@
-import React from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash'
 import { connect } from 'react-redux'
-import { setBoard } from '../actions'
+import { initGame } from '../actions'
 import Board from '../components/Board'
 import { PRESET, MOVE_DEF } from '../Constants';
 import PieceModel from '../models/Piece';
 
-const Game = () => {
+class Game extends Component {
 
-  const { board, turn } = PRESET.HIRATE;
-  const rows = board.map(row => {
-    const csa = _.times(9, j => {
-      const target = row.slice(24 - j * 3, 24 - j * 3 + 3);
-      return target === " * " ? null : new PieceModel(target);
-    });
-    return csa;
-  })
+  componentWillMount() {
+    this.props.initGame();
+  }
 
-  return (
-    <Board rows={rows} />
-  )
+  render() {
+    return (
+      <Board rows={this.props.board} />
+    )
+  }
 }
 
 export default connect(
-  state => {
+  state => ({
     board: state.board
-  },
-  dispatch => {
-    setBoard : board => dispatch(setBoard(board))
-  }
+  }),
+  dispatch => ({
+    initGame: () => dispatch(initGame())
+  })
 )(Game)
