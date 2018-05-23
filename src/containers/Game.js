@@ -19,7 +19,7 @@ class Game extends Component {
     const { board, forwardGame, backwardGame } = this.props;
     console.log(this.props);
     return (
-      <div>
+      <div style={{margin: "0 auto", maxWidth: "360px"}}>
         <Hands hands={this.props.hands[1]} />
         <Board rows={this.props.board} />
         <Hands hands={this.props.hands[0]} />

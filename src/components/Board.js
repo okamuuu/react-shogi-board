@@ -88,28 +88,7 @@ export default class Board extends Component {
             </Box>
           ))}
         </GameBoard>
-        {/*
-        <GameBoard>
-          {headNavNumbers.map(y => {
-            return sideNavNumbers.map(x => {
-              if ((x === 3 || x === 6) && (y === 3 || y === 6)) {
-                return (
-                  <Box dot color={"#222"} key={""+y+x}>
-                    <Piece color="#666" kind="HU" />
-                  </Box>
-                )
-              }
-              return (
-                <Box key={""+y+x}>{""+y+x}</Box>
-              )
-            })
-          })}
-        </GameBoard>
-        */}
-        <div style={{width: 30, height: 30}}>
-        </div>
       </div>
     );
-
   }
 }

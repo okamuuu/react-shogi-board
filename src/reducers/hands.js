@@ -1,7 +1,7 @@
-const hands = (state = [], action) => {
+const hands = (state = [{}, {}], action) => {
   switch (action.type) {
     case 'SET_BOARD':
-      return Object.assign([], action.hands)
+      return Object.assign([{}, {}], action.hands)
     default:
       return state
   }
