@@ -99,6 +99,10 @@
     webpack-dev-middleware "^1.6.0"
     webpack-hot-middleware "^2.13.2"
 
+"@nx-js/observer-util@^4.1.1":
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/@nx-js/observer-util/-/observer-util-4.1.2.tgz#0f977196614b990758ab7f3c63f41e0010577da0"
+
 abab@^1.0.3:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/abab/-/abab-1.0.4.tgz#5faad9c2c07f60dd76770f71cf025b62a63cfd4e"
@@ -6333,6 +6337,12 @@ react-dom@^16.3.2:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.0"
+
+react-easy-state@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/react-easy-state/-/react-easy-state-5.1.0.tgz#eb7219d491f2fc98e26b00d6ae6163493935d6f0"
+  dependencies:
+    "@nx-js/observer-util" "^4.1.1"
 
 react-error-overlay@^4.0.0:
   version "4.0.0"

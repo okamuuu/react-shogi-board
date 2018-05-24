@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import styled, { css } from "styled-components";
+import React from "react";
+import styled from "styled-components";
 
 const baseColor = `#666`
 
@@ -13,8 +13,6 @@ const HandPiece = styled.span`
   font-size: 0.8em;
   margin: 0.25em;
   padding: 0.25em 0.5em;
-  // border: 1px solid ${baseColor};
-  // border-radius: 3px;
 `
 
 function convertToJa(kind) {

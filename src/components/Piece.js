@@ -1,8 +1,5 @@
 import React, { Component } from "react";
-import { DragSource, DropTarget } from "react-dnd";
-import flow from 'lodash/flow';
 import styled, { css } from "styled-components";
-// import ReactIconBase from 'react-icon-base';
 
 const Color = {
   Black: 0,
@@ -15,21 +12,9 @@ const Wrapper = styled.div`
   `}
 `
 
-// const Icon = props => {
-//   return (
-//   <ReactIconBase viewBox="0 0 512 512" size={"80%"} color={"#666"} {...props}>
-//     <path
-//       d="M470.522 491.888l-40.189-367.361L256.009 0 81.667 124.526 39.282 512h433.436l-2.196-20.112zM79.737 475.725l36.221-331.114L256.009 44.582l140.033 100.029 36.222 331.114H79.737z"
-//     />
-//     <text x="50%" y="75%" textAnchor="middle" fontSize="256">{props.children}</text>
-//   </ReactIconBase>
-//   )
-// };
-
-// 文字だけの方が視認性が良いかも.
 const Icon = props => {
   return (
-    <span style={{color:"#222",fontSize: "1.4em", cursor: "pointer"}}>{props.children}</span>
+    <span onClick={props.onClick} style={{color:"#222",fontSize: "1.4em", cursor: "pointer"}}>{props.children}</span>
   )
 };
 
@@ -70,52 +55,13 @@ const Base = props => {
   }
 }
 
-class Piece extends Component {
+export default class Piece extends Component {
   render() {
-    const {color, kind} = this.props;
+    const {color, kind, onClick} = this.props;
     return (
-      <Wrapper upSideDown={color === Color.White}>
+      <Wrapper onClick={onClick} upSideDown={color === Color.White}>
         <Base kind={kind} />
       </Wrapper>
     )
   }
 }
-
-var pieceSource = {
-
-  beginDrag: function (props) {
-    console.log(props);
-    // ドラッグされたアイテムが記述されたデータを返す
-    var item = { id: props.id };
-    return item;
-  },
-
-  endDrag: function (props, monitor, component) {
-    if (!monitor.didDrop()) {
-      return;
-    }
-
-    // 互換性のあるtargetにドロップした場合、何らかの動作をする。
-    var item = monitor.getItem();
-    var dropResult = monitor.getDropResult();
-    // CardActions.moveCardToList(item.id, dropResult.listId);
-  }
-};
-
-/**
- * コンポーネントにセットするpropsを指定する
- */
-function collect(connect, monitor) {
-  return {
-    // React DnDにDragイベントを処理させるために、
-    // render()内でこの関数を呼び出します
-    connectDragSource: connect.dragSource(),
-    // 現在のDragステートをモニターに問い合わせる
-    isDragging: monitor.isDragging()
-  };
-}
-
-export default flow(
-  DragSource: pieceSource,
-  // DropTarget: console.log
-)(Piece);
