@@ -1,4 +1,3 @@
-// import { JKFPlayer } from "json-kifu-format";
 import React, { Component } from "react";
 import styled, { css } from "styled-components";
 import Piece from "./Piece";

@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import ReactIconBase from 'react-icon-base';
+import { DragSource, DropTarget } from "react-dnd";
+import flow from 'lodash/flow';
 import styled, { css } from "styled-components";
+// import ReactIconBase from 'react-icon-base';
 
 const Color = {
   Black: 0,
@@ -27,7 +29,7 @@ const Wrapper = styled.div`
 // 文字だけの方が視認性が良いかも.
 const Icon = props => {
   return (
-    <span style={{color:"#222",fontSize: "1.4em"}}>{props.children}</span>
+    <span style={{color:"#222",fontSize: "1.4em", cursor: "pointer"}}>{props.children}</span>
   )
 };
 
@@ -68,7 +70,7 @@ const Base = props => {
   }
 }
 
-export default class Piece extends Component {
+class Piece extends Component {
   render() {
     const {color, kind} = this.props;
     return (
@@ -78,3 +80,42 @@ export default class Piece extends Component {
     )
   }
 }
+
+var pieceSource = {
+
+  beginDrag: function (props) {
+    console.log(props);
+    // ドラッグされたアイテムが記述されたデータを返す
+    var item = { id: props.id };
+    return item;
+  },
+
+  endDrag: function (props, monitor, component) {
+    if (!monitor.didDrop()) {
+      return;
+    }
+
+    // 互換性のあるtargetにドロップした場合、何らかの動作をする。
+    var item = monitor.getItem();
+    var dropResult = monitor.getDropResult();
+    // CardActions.moveCardToList(item.id, dropResult.listId);
+  }
+};
+
+/**
+ * コンポーネントにセットするpropsを指定する
+ */
+function collect(connect, monitor) {
+  return {
+    // React DnDにDragイベントを処理させるために、
+    // render()内でこの関数を呼び出します
+    connectDragSource: connect.dragSource(),
+    // 現在のDragステートをモニターに問い合わせる
+    isDragging: monitor.isDragging()
+  };
+}
+
+export default flow(
+  DragSource: pieceSource,
+  // DropTarget: console.log
+)(Piece);
