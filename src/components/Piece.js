@@ -57,9 +57,9 @@ const Base = props => {
 
 export default class Piece extends Component {
   render() {
-    const {color, kind, onClick} = this.props;
+    const {color, kind} = this.props;
     return (
-      <Wrapper onClick={onClick} upSideDown={color === Color.White}>
+      <Wrapper upSideDown={color === Color.White}>
         <Base kind={kind} />
       </Wrapper>
     )

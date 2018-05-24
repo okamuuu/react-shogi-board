@@ -11,14 +11,12 @@ const { Shogi } = require("shogi.js");
 let shogi; // Business logic will be set here here.
 
 const state = store({
-  status: 0,
   board: [[], [], [], [], [], [], [], [], []],
+  selectedBox: {},
   movableBoxes: [],
   hands: [{}, {}],
   turn: 0,
-  movingFrom: {x: "", y: ""},
   movablePoints: [],
-  movingTo: {x: "", y: ""}
 });
 
 function setState(shogi) {
@@ -32,22 +30,44 @@ function isMovableBox(x, y) {
   return _.find(state.movableBoxes, {x, y})
 }
 
-function handleCancel() {
-  // state.movableBoxes = [];
+function reset() {
+  state.selectedBox = {};
+  state.movableBoxes = [];
 }
 
-function handleSelectPiece(e, x, y) {
-  const piece = shogi.get(x, y);
-  e.stopPropagation();
-  console.log("handleSelectPiece");
-  if (state.turn !== piece.color) {
+function handleClickBox(x, y) {
+  if (_.isEmpty(state.selectedBox)) {
+    selectPiece(x, y)
     return;
+  } else if (isMovableBox(x, y)) {
+    move(x, y);
   }
 
+  reset();
+}
+
+function selectPiece(x, y) {
+  const piece = shogi.get(x, y);
+  if (!piece || shogi.turn !== piece.color) {
+    return;
+  }
   const movablePoints = shogi.getMovesFrom(x, y);
-  state.movingFrom = {x, y};
+
+  state.selectedBox = {x, y};
   state.movableBoxes = movablePoints.map(x => x.to);
-  // state.status = 1; // selecting
+}
+
+function move(x, y) {
+  const { selectedBox } = state;
+
+  const piece = shogi.get(selectedBox.x, selectedBox.y);
+  shogi.move(selectedBox.x, selectedBox.y, x, y, false); // promote は後で考える
+
+  // state を刷新する
+  state.board = shogi.board;
+  state.selectedBox = {};
+  state.movableBoxes = [];
+  state.turn = shogi.turn;
 }
 
 function movePiece(x, y) {
@@ -98,11 +118,11 @@ class Game extends Component {
 
     return (
       <div>
-        <Board onClick={handleCancel}>
+        <Board>
           {gameRows.map(({piece, x, y}) => (
-            <Box key={x+"-"+y} overlay={isMovableBox(x, y)} onClick={() => movePiece(x, y)}>
+            <Box key={x+"-"+y} overlay={isMovableBox(x, y)} onClick={() => handleClickBox(x, y)}>
               {
-                piece && (<Piece onClick={(e) => handleSelectPiece(e, x, y, piece.color)} color={piece.color} kind={piece.kind} />)
+                piece && (<Piece color={piece.color} kind={piece.kind} />)
               }
             </Box>
           ))}
