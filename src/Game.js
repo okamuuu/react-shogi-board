@@ -185,11 +185,11 @@ class Game extends Component {
 
     return (
       <div style={{margin: "0 auto", maxWidth: "360px"}}>
-        <div>
-          { Object.keys(whiteHandsSammary).filter(kind => whiteHandsSammary[kind] >= 0).map(kind => (
+        <Hands>
+          { Object.keys(whiteHandsSammary).filter(kind => whiteHandsSammary[kind] > 0).map(kind => (
             <Hand onClick={() => handleClickHand(Color.White, kind)} key={kind} kind={kind} count={whiteHandsSammary[kind]} />
           )) }
-        </div>
+        </Hands>
         <Board>
           {gameRows.map(({piece, x, y}) => (
             <Box key={x+"-"+y} overlay={isMovableBox(x, y) || isDroppableBox(x, y)} onClick={() => handleClickBox(x, y)}>
@@ -200,7 +200,7 @@ class Game extends Component {
           ))}
         </Board>
         <Hands>
-          { Object.keys(blackHandsSammary).filter(kind => blackHandsSammary[kind] >= 0).map(kind => (
+          { Object.keys(blackHandsSammary).filter(kind => blackHandsSammary[kind] > 0).map(kind => (
             <Hand onClick={() => handleClickHand(Color.Black, kind)} key={kind} kind={kind} count={blackHandsSammary[kind]} />
           )) }
         </Hands>
