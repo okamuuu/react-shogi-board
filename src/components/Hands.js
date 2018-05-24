@@ -39,11 +39,16 @@ function convertToJa(kind) {
 export default (props) => {
   const { hands } = props;
 
+  console.log("=====");
+  console.log(hands);
+
+  const table = {};
+
   return (
     <Hands>
-      {Object.keys(hands).filter(x => hands[x] >= 0).map(x => (
+      { Object.keys(hands).filter(x => hands[x] >= 0).map(x => (
         <HandPiece>{`${convertToJa(x)} ${hands[x]}`} </HandPiece>
-      ))}
+      )) }
     </Hands>
   )
 }

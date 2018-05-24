@@ -5,6 +5,7 @@ import _ from 'lodash';
 import Board from './components/Board';
 import Box from './components/Box';
 import Piece from './components/Piece';
+import Hands from './components/Hands';
 
 const { Shogi, Color } = require("shogi.js");
 const ShogiPiece = require("shogi.js").Piece;
@@ -92,9 +93,17 @@ function move(x, y) {
 
   // state を刷新する
   state.board = shogi.board;
+  state.hands = shogi.hands;
   state.selectedBox = {};
   state.movableBoxes = [];
   state.turn = shogi.turn;
+}
+
+function getHandsSammary(color) {
+  if (!shogi) {
+    return {}
+  }
+  return shogi.getHandsSummary(color);
 }
 
 class Game extends Component {
@@ -105,8 +114,10 @@ class Game extends Component {
   }
 
   render() {
-
     const { board, hands, turn } = state;
+
+    console.log('-------');
+    console.log(hands);
 
     const isReversed = false;
     const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -130,7 +141,8 @@ class Game extends Component {
     }
 
     return (
-      <div>
+      <div style={{margin: "0 auto", maxWidth: "360px"}}>
+        <Hands hands={getHandsSammary(Color.White)} />
         <Board>
           {gameRows.map(({piece, x, y}) => (
             <Box key={x+"-"+y} overlay={isMovableBox(x, y)} onClick={() => handleClickBox(x, y)}>
@@ -140,6 +152,7 @@ class Game extends Component {
             </Box>
           ))}
         </Board>
+        <Hands hands={getHandsSammary(Color.Black)} />
       </div>
     );
   }
