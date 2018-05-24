@@ -1,5 +1,5 @@
 // copied from https://github.com/na2hiro/Shogi.js/blob/master/src/Constants.ts
-const Color = {
+export const Color = {
   Black: 0,
   White: 1
 };

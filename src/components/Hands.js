@@ -1,20 +1,19 @@
-import React, { Component } from 'react';
-import styled, { css } from "styled-components";
+import React, { Component } from "react";
+import styled from "styled-components";
 
 const baseColor = `#666`
 
-const Hands = styled.div`
+export const Hands = styled.div`
   height: 1em;
   margin: 0;
   padding: 15px 0;
 `;
 
 const HandPiece = styled.span`
+  cursor: pointer;
   font-size: 0.8em;
   margin: 0.25em;
   padding: 0.25em 0.5em;
-  // border: 1px solid ${baseColor};
-  // border-radius: 3px;
 `
 
 function convertToJa(kind) {
@@ -38,14 +37,25 @@ function convertToJa(kind) {
   }
 }
 
+export class Hand extends Component {
+
+  render() {
+    const { kind, count, onClick } = this.props;
+
+    return (
+      <HandPiece onClick={onClick}>{`${convertToJa(kind)} ${count}`}</HandPiece>
+    )
+  }
+}
+
 export default (props) => {
   const { hands } = props;
 
   return (
     <Hands>
-      {Object.keys(hands).filter(x => hands[x] >= 0).map(x => (
+      { Object.keys(hands).filter(x => hands[x] >= 0).map(x => (
         <HandPiece>{`${convertToJa(x)} ${hands[x]}`} </HandPiece>
-      ))}
+      )) }
     </Hands>
   )
 }
