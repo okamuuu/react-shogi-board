@@ -26,7 +26,14 @@ shogi.move(3, 3, 3, 4, false);
 // console.log(shogi.get(3, 4));
 
 // ２二角交換
-  // available = shogi.getMovesFrom(8, 8);
-  // shogi.move(8, 8, 2, 2, true);
+available = shogi.getMovesFrom(8, 8);
+shogi.move(8, 8, 2, 2, true);
 
-console.log(shogi.get(2, 2));
+// 銀で角を取る
+shogi.move(3, 1, 2, 2, false);
+
+// 中央に角を drop
+shogi.drop(5, 5, 'KA');
+console.log(shogi.hands);
+
+

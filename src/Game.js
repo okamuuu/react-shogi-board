@@ -5,7 +5,7 @@ import _ from 'lodash';
 import Board from './components/Board';
 import Box from './components/Box';
 import Piece from './components/Piece';
-import Hands from './components/Hands';
+import { Hands, Hand } from './components/Hands';
 
 const { Shogi, Color } = require("shogi.js");
 const ShogiPiece = require("shogi.js").Piece;
@@ -14,10 +14,12 @@ let shogi; // Business logic will be set here here.
 
 const state = store({
   board: [[], [], [], [], [], [], [], [], []],
-  selectedBox: {},
-  movableBoxes: [],
   hands: [{}, {}],
   turn: 0,
+  selectedBox: {},
+  selectedHand: {},
+  movableBoxes: [],
+  droppableBoxes: [],
 });
 
 function setState(shogi) {
@@ -31,12 +33,21 @@ function isMovableBox(x, y) {
   return _.find(state.movableBoxes, {x, y})
 }
 
+function isDroppableBox(x, y) {
+  return _.find(state.droppableBoxes, {x, y})
+}
 function reset() {
   state.selectedBox = {};
   state.movableBoxes = [];
 }
 
 function handleClickBox(x, y) {
+
+  if (!_.isEmpty(state.selectedHand)) {
+    drop(x, y);
+    return;
+  }
+
   if (_.isEmpty(state.selectedBox)) {
     select(x, y)
     return;
@@ -48,6 +59,13 @@ function handleClickBox(x, y) {
   reset();
 }
 
+function handleClickHand(color, kind) {
+  if (_.isEmpty(state.selectedHand)) {
+    selectHand(color, kind);
+    return;
+  }
+}
+
 function select(x, y) {
   const piece = shogi.get(x, y);
   if (!piece || shogi.turn !== piece.color) {
@@ -57,6 +75,15 @@ function select(x, y) {
 
   state.selectedBox = {x, y};
   state.movableBoxes = movablePoints.map(x => x.to);
+}
+
+// TODO: selectPiece と selectHand を同時に実行することはできない
+function selectHand(color, kind) {
+  if (shogi.turn !== color) {
+    return;
+  }
+  state.selectedHand = {kind};
+  state.droppableBoxes = shogi.getDropsBy(color).map(x => x.to);
 }
 
 function canPromoteKind(kind) {
@@ -99,6 +126,22 @@ function move(x, y) {
   state.turn = shogi.turn;
 }
 
+function drop(x, y) {
+  console.log("drop");
+  const { selectedHand } = state;
+
+  console.log(x, y, selectedHand);
+  shogi.drop(x, y, selectedHand.kind);
+
+  // state を刷新する
+  state.board = shogi.board;
+  state.hands = shogi.hands;
+  state.selectedHand = {};
+  state.droppableBoxes = [];
+  state.turn = shogi.turn;
+}
+
+
 function getHandsSammary(color) {
   if (!shogi) {
     return {}
@@ -115,9 +158,6 @@ class Game extends Component {
 
   render() {
     const { board, hands, turn } = state;
-
-    console.log('-------');
-    console.log(hands);
 
     const isReversed = false;
     const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -140,19 +180,30 @@ class Game extends Component {
       })
     }
 
+    const whiteHandsSammary = getHandsSammary(Color.White);
+    const blackHandsSammary = getHandsSammary(Color.Black);
+
     return (
       <div style={{margin: "0 auto", maxWidth: "360px"}}>
-        <Hands hands={getHandsSammary(Color.White)} />
+        <div>
+          { Object.keys(whiteHandsSammary).filter(kind => whiteHandsSammary[kind] >= 0).map(kind => (
+            <Hand onClick={() => handleClickHand(Color.White, kind)} key={kind} kind={kind} count={whiteHandsSammary[kind]} />
+          )) }
+        </div>
         <Board>
           {gameRows.map(({piece, x, y}) => (
-            <Box key={x+"-"+y} overlay={isMovableBox(x, y)} onClick={() => handleClickBox(x, y)}>
+            <Box key={x+"-"+y} overlay={isMovableBox(x, y) || isDroppableBox(x, y)} onClick={() => handleClickBox(x, y)}>
               {
                 piece && (<Piece color={piece.color} kind={piece.kind} />)
               }
             </Box>
           ))}
         </Board>
-        <Hands hands={getHandsSammary(Color.Black)} />
+        <Hands>
+          { Object.keys(blackHandsSammary).filter(kind => blackHandsSammary[kind] >= 0).map(kind => (
+            <Hand onClick={() => handleClickHand(Color.Black, kind)} key={kind} kind={kind} count={blackHandsSammary[kind]} />
+          )) }
+        </Hands>
       </div>
     );
   }
