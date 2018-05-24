@@ -6,7 +6,8 @@ import Board from './components/Board';
 import Box from './components/Box';
 import Piece from './components/Piece';
 
-const { Shogi } = require("shogi.js");
+const { Shogi, Color } = require("shogi.js");
+const ShogiPiece = require("shogi.js").Piece;
 
 let shogi; // Business logic will be set here here.
 
@@ -16,7 +17,6 @@ const state = store({
   movableBoxes: [],
   hands: [{}, {}],
   turn: 0,
-  movablePoints: [],
 });
 
 function setState(shogi) {
@@ -37,16 +37,17 @@ function reset() {
 
 function handleClickBox(x, y) {
   if (_.isEmpty(state.selectedBox)) {
-    selectPiece(x, y)
+    select(x, y)
     return;
   } else if (isMovableBox(x, y)) {
     move(x, y);
+    return;
   }
 
   reset();
 }
 
-function selectPiece(x, y) {
+function select(x, y) {
   const piece = shogi.get(x, y);
   if (!piece || shogi.turn !== piece.color) {
     return;
@@ -57,29 +58,41 @@ function selectPiece(x, y) {
   state.movableBoxes = movablePoints.map(x => x.to);
 }
 
+function canPromoteKind(kind) {
+  return ShogiPiece.canPromote(kind);
+}
+
+function canPromotePlace(color, y) {
+  return color === Color.Black ? y <= 3 : y >= 7;
+}
+
+function canPromote(kind, color, fromY, toY) {
+  if (!canPromoteKind(kind)) {
+    return false;
+  }
+
+  if (!canPromotePlace(color, fromY) && !canPromotePlace(color, toY)) {
+    return false;
+  }
+
+  return true;
+}
+
 function move(x, y) {
   const { selectedBox } = state;
 
   const piece = shogi.get(selectedBox.x, selectedBox.y);
-  shogi.move(selectedBox.x, selectedBox.y, x, y, false); // promote は後で考える
+
+  let promote = false;
+  if (canPromote(piece.kind, piece.color, selectedBox.y, y)) {
+    promote = window.confirm("成りますか?");
+  }
+
+  shogi.move(selectedBox.x, selectedBox.y, x, y, promote); // promote は後で考える
 
   // state を刷新する
   state.board = shogi.board;
   state.selectedBox = {};
-  state.movableBoxes = [];
-  state.turn = shogi.turn;
-}
-
-function movePiece(x, y) {
-  const piece = shogi.get(state.movingFrom.x, state.movingFrom.y);
-  console.log("movePiece");
-  if (state.turn !== piece.color) {
-    return;
-  }
-  let promote = false; // TODO: promote するかどうかの判定
-  shogi.move(state.movingFrom.x, state.movingFrom.y, x, y, promote);
-  state.board = shogi.board
-  state.movingFrom = {x: "", y: ""};
   state.movableBoxes = [];
   state.turn = shogi.turn;
 }
