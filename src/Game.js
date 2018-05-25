@@ -38,12 +38,14 @@ function isDroppableBox(x, y) {
 }
 function reset() {
   state.selectedBox = {};
+  state.selectedHand = {};
   state.movableBoxes = [];
+  state.droppableBoxes = [];
 }
 
 function handleClickBox(x, y) {
 
-  if (!_.isEmpty(state.selectedHand)) {
+  if (!_.isEmpty(state.selectedHand) && isDroppableBox(x, y)) {
     drop(x, y);
     return;
   }
