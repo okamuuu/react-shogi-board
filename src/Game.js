@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { store, view } from 'react-easy-state';
+import { store, view } from 'react-easy-state'; // store is as observable
 import _ from 'lodash';
 
 import Board from './components/Board';
@@ -20,11 +20,14 @@ const state = store({
   selectedHand: {},
   movableBoxes: [],
   droppableBoxes: [],
+  moveCount: 0,
+  sfen: "",
 });
 
-function setState(shogi) {
+function setInitialState(shogi) {
   state.board = Object.assign([], shogi.board);
   state.hands = Object.assign([], shogi.hands);
+  state.moveCount = 1;
   state.turn = shogi.turn;
 }
 
@@ -59,6 +62,7 @@ function isMovableBox(x, y) {
 function isDroppableBox(x, y) {
   return _.find(state.droppableBoxes, {x, y})
 }
+
 function reset() {
   state.selectedBox = {};
   state.selectedHand = {};
@@ -134,9 +138,6 @@ function canPromote(kind, color, fromY, toY) {
 function move(x, y) {
   const { selectedBox } = state;
 
-  console.log("==");
-  console.log(selectedBox.x, selectedBox.y, x, y);
-
   const piece = shogi.get(selectedBox.x, selectedBox.y);
 
   let promote = false;
@@ -144,7 +145,6 @@ function move(x, y) {
     promote = window.confirm("成りますか?");
   }
 
-  console.log(selectedBox.x, selectedBox.y, x, y, promote);
   shogi.move(selectedBox.x, selectedBox.y, x, y, promote);
 
   // state を刷新する
@@ -153,6 +153,8 @@ function move(x, y) {
   state.selectedBox = {};
   state.movableBoxes = [];
   state.turn = shogi.turn;
+  state.sfen = shogi.toSFENString();
+  state.moveCount++;
 }
 
 function drop(x, y) {
@@ -184,10 +186,8 @@ class Game extends Component {
     super(props);
     this.emitter = props.emitter;
     this.emitter.on("moveNext", (nextMove) => {
-      console.log("fire moveNext");
+      console.log("fire moveNext", nextMove);
       const { fromX, fromY, toX, toY } = parseMoveSFEN(nextMove);
-      console.log(shogi.get(fromX, fromX));
-      console.log(shogi.getMovesFrom(7, 7));
       shogi.move(fromX, fromY, toX, toY, false); // promote は後で考える
 
       // state を刷新する
@@ -197,11 +197,17 @@ class Game extends Component {
       state.movableBoxes = [];
       state.turn = shogi.turn;
     });
+
+    this.getCurrentSfen = function () {
+      console.log(state.moveCount);
+      return shogi.toSFENString(state.moveCount);
+    }
   }
 
   componentDidMount(props) {
     shogi = new Shogi();
-    setState(shogi);
+    setInitialState(shogi);
+    this.shogi = shogi;
   }
 
   render() {
