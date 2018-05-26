@@ -28,6 +28,29 @@ function setState(shogi) {
   state.turn = shogi.turn;
 }
 
+// TODO: ちゃんと考える
+function parseMoveSFEN(string) {
+  const chars = string.split('');
+
+  const table = {
+    a: 1,
+    b: 2,
+    c: 3,
+    d: 4,
+    e: 5,
+    f: 6,
+    g: 7,
+    h: 8,
+    i: 9
+  }
+  return {
+    fromX: parseInt(chars[0], 10),
+    fromY: table[chars[1]],
+    toX: parseInt(chars[2], 10),
+    toY: table[chars[3]]
+  }
+}
+
 // TODO: to hash data if we need
 function isMovableBox(x, y) {
   return _.find(state.movableBoxes, {x, y})
@@ -111,6 +134,9 @@ function canPromote(kind, color, fromY, toY) {
 function move(x, y) {
   const { selectedBox } = state;
 
+  console.log("==");
+  console.log(selectedBox.x, selectedBox.y, x, y);
+
   const piece = shogi.get(selectedBox.x, selectedBox.y);
 
   let promote = false;
@@ -118,7 +144,8 @@ function move(x, y) {
     promote = window.confirm("成りますか?");
   }
 
-  shogi.move(selectedBox.x, selectedBox.y, x, y, promote); // promote は後で考える
+  console.log(selectedBox.x, selectedBox.y, x, y, promote);
+  shogi.move(selectedBox.x, selectedBox.y, x, y, promote);
 
   // state を刷新する
   state.board = shogi.board;
@@ -153,12 +180,32 @@ function getHandsSammary(color) {
 
 class Game extends Component {
 
-  componentDidMount() {
+  constructor(props) {
+    super(props);
+    this.emitter = props.emitter;
+    this.emitter.on("moveNext", (nextMove) => {
+      console.log("fire moveNext");
+      const { fromX, fromY, toX, toY } = parseMoveSFEN(nextMove);
+      console.log(shogi.get(fromX, fromX));
+      console.log(shogi.getMovesFrom(7, 7));
+      shogi.move(fromX, fromY, toX, toY, false); // promote は後で考える
+
+      // state を刷新する
+      state.board = shogi.board;
+      state.hands = shogi.hands;
+      state.selectedBox = {};
+      state.movableBoxes = [];
+      state.turn = shogi.turn;
+    });
+  }
+
+  componentDidMount(props) {
     shogi = new Shogi();
     setState(shogi);
   }
 
   render() {
+    const { nextMove } = this.props;
     const { board, hands, turn } = state;
 
     const isReversed = false;

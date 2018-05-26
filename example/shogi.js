@@ -41,4 +41,26 @@ console.log(shogi.toSFENString());
 shogi.drop(5, 5, 'KA');
 console.log(shogi.toSFENString());
 
+// next bestmove is 7g7f
+function parseSFENMove(string) {
+  const chars = string.split('');
+  const table = {
+    a: 9,
+    b: 8,
+    c: 7,
+    d: 6,
+    e: 5,
+    f: 4,
+    g: 3,
+    h: 2,
+    i: 1
+  }
+  return {
+    fromX: chars[0],
+    fromY: table[chars[1]],
+    toX: chars[2],
+    toY: table[chars[3]]
+  }
+}
 
+console.log(parseSFENMove("7g7f"));
