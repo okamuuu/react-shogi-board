@@ -23,6 +23,7 @@ const state = store({
   moveCount: 0,
   sfen: "",
   bestpv: {},
+  sfenOf: {},
 });
 
 function setInitialState(shogi) {
@@ -31,6 +32,7 @@ function setInitialState(shogi) {
   state.moveCount = 1;
   state.turn = shogi.turn;
   state.sfen = _getCurrentSfen();
+  state.sfenOf[state.moveCount] = state.sfen;
 }
 
 function _getCurrentSfen() {
@@ -162,6 +164,7 @@ function move(x, y) {
   state.turn = shogi.turn;
   state.moveCount++;
   state.sfen = _getCurrentSfen();
+  state.sfenOf[state.moveCount] = state.sfen;
 }
 
 function drop(x, y) {
@@ -207,6 +210,7 @@ class Game extends Component {
       state.moveCount++;
       state.sfen = _getCurrentSfen();
       state.bestpv = bestpv;
+      state.sfenOf[state.moveCount] = state.sfen;
     });
   }
 
@@ -270,6 +274,7 @@ class Game extends Component {
             <Hand onClick={() => handleClickHand(Color.Black, kind)} key={kind} kind={kind} count={blackHandsSammary[kind]} />
           )) }
         </Hands>
+        <button onClick={() => console.log(state.sfenOf[state.moveCount-1])}>待った</button>
         <div>
           {sfen}
         </div>
