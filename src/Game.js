@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { store, view } from 'react-easy-state';
+import { store, view } from 'react-easy-state'; // store is as observable
 import _ from 'lodash';
 
 import Board from './components/Board';
@@ -20,12 +20,38 @@ const state = store({
   selectedHand: {},
   movableBoxes: [],
   droppableBoxes: [],
+  moveCount: 0,
+  sfen: "",
 });
 
-function setState(shogi) {
+function setInitialState(shogi) {
   state.board = Object.assign([], shogi.board);
   state.hands = Object.assign([], shogi.hands);
+  state.moveCount = 1;
   state.turn = shogi.turn;
+}
+
+// TODO: ちゃんと考える
+function parseMoveSFEN(string) {
+  const chars = string.split('');
+
+  const table = {
+    a: 1,
+    b: 2,
+    c: 3,
+    d: 4,
+    e: 5,
+    f: 6,
+    g: 7,
+    h: 8,
+    i: 9
+  }
+  return {
+    fromX: parseInt(chars[0], 10),
+    fromY: table[chars[1]],
+    toX: parseInt(chars[2], 10),
+    toY: table[chars[3]]
+  }
 }
 
 // TODO: to hash data if we need
@@ -36,14 +62,17 @@ function isMovableBox(x, y) {
 function isDroppableBox(x, y) {
   return _.find(state.droppableBoxes, {x, y})
 }
+
 function reset() {
   state.selectedBox = {};
+  state.selectedHand = {};
   state.movableBoxes = [];
+  state.droppableBoxes = [];
 }
 
 function handleClickBox(x, y) {
 
-  if (!_.isEmpty(state.selectedHand)) {
+  if (!_.isEmpty(state.selectedHand) && isDroppableBox(x, y)) {
     drop(x, y);
     return;
   }
@@ -116,7 +145,7 @@ function move(x, y) {
     promote = window.confirm("成りますか?");
   }
 
-  shogi.move(selectedBox.x, selectedBox.y, x, y, promote); // promote は後で考える
+  shogi.move(selectedBox.x, selectedBox.y, x, y, promote);
 
   // state を刷新する
   state.board = shogi.board;
@@ -124,6 +153,8 @@ function move(x, y) {
   state.selectedBox = {};
   state.movableBoxes = [];
   state.turn = shogi.turn;
+  state.sfen = shogi.toSFENString();
+  state.moveCount++;
 }
 
 function drop(x, y) {
@@ -151,12 +182,36 @@ function getHandsSammary(color) {
 
 class Game extends Component {
 
-  componentDidMount() {
+  constructor(props) {
+    super(props);
+    this.emitter = props.emitter;
+    this.emitter.on("moveNext", (nextMove) => {
+      console.log("fire moveNext", nextMove);
+      const { fromX, fromY, toX, toY } = parseMoveSFEN(nextMove);
+      shogi.move(fromX, fromY, toX, toY, false); // promote は後で考える
+
+      // state を刷新する
+      state.board = shogi.board;
+      state.hands = shogi.hands;
+      state.selectedBox = {};
+      state.movableBoxes = [];
+      state.turn = shogi.turn;
+    });
+
+    this.getCurrentSfen = function () {
+      console.log(state.moveCount);
+      return shogi.toSFENString(state.moveCount);
+    }
+  }
+
+  componentDidMount(props) {
     shogi = new Shogi();
-    setState(shogi);
+    setInitialState(shogi);
+    this.shogi = shogi;
   }
 
   render() {
+    const { nextMove } = this.props;
     const { board, hands, turn } = state;
 
     const isReversed = false;
