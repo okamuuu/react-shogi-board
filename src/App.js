@@ -38,7 +38,8 @@ class App extends Component {
     console.log(this.game.getCurrentSfen());
     const result = await getBestMove(this.game.getCurrentSfen());
     console.log(result.data.bestmove);
-    this.emitter.emit("moveNext", result.data.bestmove);
+    this.emitter.emit("ai", result.data);
+    // this.emitter.emit("moveNext", result.data.bestmove);
   }
 
   render() {

@@ -22,6 +22,7 @@ const state = store({
   droppableBoxes: [],
   moveCount: 0,
   sfen: "",
+  bestpv: {},
 });
 
 function setInitialState(shogi) {
@@ -29,6 +30,12 @@ function setInitialState(shogi) {
   state.hands = Object.assign([], shogi.hands);
   state.moveCount = 1;
   state.turn = shogi.turn;
+  state.sfen = _getCurrentSfen();
+}
+
+function _getCurrentSfen() {
+  console.log(state.moveCount);
+  return shogi.toSFENString(state.moveCount);
 }
 
 // TODO: ちゃんと考える
@@ -153,8 +160,8 @@ function move(x, y) {
   state.selectedBox = {};
   state.movableBoxes = [];
   state.turn = shogi.turn;
-  state.sfen = shogi.toSFENString();
   state.moveCount++;
+  state.sfen = _getCurrentSfen();
 }
 
 function drop(x, y) {
@@ -185,9 +192,10 @@ class Game extends Component {
   constructor(props) {
     super(props);
     this.emitter = props.emitter;
-    this.emitter.on("moveNext", (nextMove) => {
-      console.log("fire moveNext", nextMove);
-      const { fromX, fromY, toX, toY } = parseMoveSFEN(nextMove);
+    this.emitter.on("ai", (data) => {
+      const { bestmove, bestpv } = data;
+      console.log("fire ai", bestmove);
+      const { fromX, fromY, toX, toY } = parseMoveSFEN(bestmove);
       shogi.move(fromX, fromY, toX, toY, false); // promote は後で考える
 
       // state を刷新する
@@ -196,12 +204,10 @@ class Game extends Component {
       state.selectedBox = {};
       state.movableBoxes = [];
       state.turn = shogi.turn;
+      state.moveCount++;
+      state.sfen = _getCurrentSfen();
+      state.bestpv = bestpv;
     });
-
-    this.getCurrentSfen = function () {
-      console.log(state.moveCount);
-      return shogi.toSFENString(state.moveCount);
-    }
   }
 
   componentDidMount(props) {
@@ -210,9 +216,14 @@ class Game extends Component {
     this.shogi = shogi;
   }
 
+  // 親 component が呼び出すために必要
+  getCurrentSfen() {
+    return _getCurrentSfen();
+  }
+
   render() {
     const { nextMove } = this.props;
-    const { board, hands, turn } = state;
+    const { board, hands, turn, sfen, bestpv } = state;
 
     const isReversed = false;
     const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -259,6 +270,12 @@ class Game extends Component {
             <Hand onClick={() => handleClickHand(Color.Black, kind)} key={kind} kind={kind} count={blackHandsSammary[kind]} />
           )) }
         </Hands>
+        <div>
+          {sfen}
+        </div>
+        <div>
+          {JSON.stringify(bestpv)}
+        </div>
       </div>
     );
   }
