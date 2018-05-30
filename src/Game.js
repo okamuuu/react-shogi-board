@@ -63,7 +63,8 @@ function parseMoveSFEN(string) {
     fromX: parseInt(chars[0], 10),
     fromY: table[chars[1]],
     toX: parseInt(chars[2], 10),
-    toY: table[chars[3]]
+    toY: table[chars[3]],
+    promote: chars[4] ? true : false
   }
 }
 
@@ -231,8 +232,8 @@ class Game extends Component {
     emitter = this.emitter; // TODO: リファクタリング
     this.emitter.on("moveNext", (nextMove) => {
       console.log("fire moveNext", nextMove);
-      const { fromX, fromY, toX, toY } = parseMoveSFEN(nextMove);
-      shogi.move(fromX, fromY, toX, toY, false); // TODO: promote
+      const { fromX, fromY, toX, toY, promote } = parseMoveSFEN(nextMove);
+      shogi.move(fromX, fromY, toX, toY, promote);
       turnAround();
     });
 
@@ -247,8 +248,8 @@ class Game extends Component {
         return;
       }
 
-      const { fromX, fromY, toX, toY } = parseMoveSFEN(bestmove);
-      shogi.move(fromX, fromY, toX, toY, false); // TODO: promote
+      const { fromX, fromY, toX, toY, promote } = parseMoveSFEN(bestmove);
+      shogi.move(fromX, fromY, toX, toY, promote);
       turnAround();
     });
 
