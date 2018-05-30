@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { store, view } from 'react-easy-state'; // store is as observable
+
 import _ from 'lodash';
 
 import Board from './components/Board';
@@ -11,6 +12,7 @@ const { Shogi, Color } = require("shogi.js");
 const ShogiPiece = require("shogi.js").Piece;
 
 let shogi; // Business logic will be set here here.
+let emitter;
 
 const state = store({
   board: [[], [], [], [], [], [], [], [], []],
@@ -22,6 +24,8 @@ const state = store({
   droppableBoxes: [],
   moveCount: 0,
   sfen: "",
+  bestpv: {},
+  sfenOf: {},
 });
 
 function setInitialState(shogi) {
@@ -29,9 +33,18 @@ function setInitialState(shogi) {
   state.hands = Object.assign([], shogi.hands);
   state.moveCount = 1;
   state.turn = shogi.turn;
+  state.sfen = _getCurrentSfen();
+  state.sfenOf[state.moveCount] = state.sfen;
 }
 
-// TODO: ちゃんと考える
+function _getCurrentSfen() {
+  return shogi.toSFENString(state.moveCount);
+}
+
+function isDropMove(string) {
+  return string.match(/\*/);
+}
+
 function parseMoveSFEN(string) {
   const chars = string.split('');
 
@@ -50,8 +63,42 @@ function parseMoveSFEN(string) {
     fromX: parseInt(chars[0], 10),
     fromY: table[chars[1]],
     toX: parseInt(chars[2], 10),
-    toY: table[chars[3]]
+    toY: table[chars[3]],
+    promote: chars[4] ? true : false
   }
+}
+
+function parseDropMoveSFEN(string) {
+  const chars = string.split('');
+
+  const kindOf = {
+    P: 'FU',
+    L: 'KY',
+    N: 'KE',
+    S: 'GI',
+    G: 'KI',
+    B: 'KA',
+    R: 'HI',
+  }
+
+  const table = {
+    a: 1,
+    b: 2,
+    c: 3,
+    d: 4,
+    e: 5,
+    f: 6,
+    g: 7,
+    h: 8,
+    i: 9
+  }
+
+  return {
+    kind: kindOf[chars[0]],
+    x: parseInt(chars[2], 10),
+    y: table[chars[3]]
+  }
+
 }
 
 // TODO: to hash data if we need
@@ -135,6 +182,22 @@ function canPromote(kind, color, fromY, toY) {
   return true;
 }
 
+function turnAround() {
+
+  state.board = shogi.board;
+  state.hands = shogi.hands;
+  state.selectedBox = {};
+  state.movableBoxes = [];
+  state.droppableBoxes = [];
+
+  state.turn = shogi.turn;
+  state.moveCount++;
+  state.sfen = _getCurrentSfen();
+  state.sfenOf[state.moveCount] = state.sfen;
+
+  emitter.emit("turnAround", state.turn);
+}
+
 function move(x, y) {
   const { selectedBox } = state;
 
@@ -146,32 +209,14 @@ function move(x, y) {
   }
 
   shogi.move(selectedBox.x, selectedBox.y, x, y, promote);
-
-  // state を刷新する
-  state.board = shogi.board;
-  state.hands = shogi.hands;
-  state.selectedBox = {};
-  state.movableBoxes = [];
-  state.turn = shogi.turn;
-  state.sfen = shogi.toSFENString();
-  state.moveCount++;
+  turnAround();
 }
 
 function drop(x, y) {
-  console.log("drop");
   const { selectedHand } = state;
-
-  console.log(x, y, selectedHand);
   shogi.drop(x, y, selectedHand.kind);
-
-  // state を刷新する
-  state.board = shogi.board;
-  state.hands = shogi.hands;
-  state.selectedHand = {};
-  state.droppableBoxes = [];
-  state.turn = shogi.turn;
+  turnAround();
 }
-
 
 function getHandsSammary(color) {
   if (!shogi) {
@@ -185,23 +230,31 @@ class Game extends Component {
   constructor(props) {
     super(props);
     this.emitter = props.emitter;
+    emitter = this.emitter; // TODO: リファクタリング
     this.emitter.on("moveNext", (nextMove) => {
       console.log("fire moveNext", nextMove);
-      const { fromX, fromY, toX, toY } = parseMoveSFEN(nextMove);
-      shogi.move(fromX, fromY, toX, toY, false); // promote は後で考える
-
-      // state を刷新する
-      state.board = shogi.board;
-      state.hands = shogi.hands;
-      state.selectedBox = {};
-      state.movableBoxes = [];
-      state.turn = shogi.turn;
+      const { fromX, fromY, toX, toY, promote } = parseMoveSFEN(nextMove);
+      shogi.move(fromX, fromY, toX, toY, promote);
+      turnAround();
     });
 
-    this.getCurrentSfen = function () {
-      console.log(state.moveCount);
-      return shogi.toSFENString(state.moveCount);
-    }
+    this.emitter.on("ai", (data) => {
+      const { bestmove, bestpv } = data;
+      console.log("fire ai", bestmove);
+
+      if (isDropMove(bestmove)) {
+        const { x, y, kind } = parseDropMoveSFEN(bestmove);
+        shogi.drop(x, y, kind);
+        turnAround();
+        return;
+      }
+
+      const { fromX, fromY, toX, toY, promote } = parseMoveSFEN(bestmove);
+      shogi.move(fromX, fromY, toX, toY, promote);
+      turnAround();
+    });
+
+
   }
 
   componentDidMount(props) {
@@ -210,9 +263,14 @@ class Game extends Component {
     this.shogi = shogi;
   }
 
+  // 親 component が呼び出すために必要
+  getCurrentSfen() {
+    return _getCurrentSfen();
+  }
+
   render() {
     const { nextMove } = this.props;
-    const { board, hands, turn } = state;
+    const { board, hands, turn, sfen, bestpv } = state;
 
     const isReversed = false;
     const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -259,6 +317,15 @@ class Game extends Component {
             <Hand onClick={() => handleClickHand(Color.Black, kind)} key={kind} kind={kind} count={blackHandsSammary[kind]} />
           )) }
         </Hands>
+        {/*
+        <button onClick={() => console.log(state.sfenOf[state.moveCount-1])}>待った</button>
+        <div>
+          {sfen}
+        </div>
+        <div>
+          {JSON.stringify(bestpv)}
+        </div>
+        */}
       </div>
     );
   }

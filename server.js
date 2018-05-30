@@ -13,8 +13,9 @@ function getBestMove(sfen) {
 
   // posigion は typo ?
   const q = qs.stringify({
-    byoyomi: 2,
-    posigion: sfen
+    byoyomi: 1,
+    // posigion: sfen
+    position: `sfen ${sfen}`
   });
 
   return axios.get(`${url}?${q}`).catch(console.error);
