@@ -144,6 +144,19 @@ function canPromote(kind, color, fromY, toY) {
   return true;
 }
 
+function turnAround() {
+
+  state.board = shogi.board;
+  state.hands = shogi.hands;
+  state.selectedBox = {};
+  state.movableBoxes = [];
+
+  state.turn = shogi.turn;
+  state.moveCount++;
+  state.sfen = _getCurrentSfen();
+  state.sfenOf[state.moveCount] = state.sfen;
+}
+
 function move(x, y) {
   const { selectedBox } = state;
 
@@ -156,15 +169,7 @@ function move(x, y) {
 
   shogi.move(selectedBox.x, selectedBox.y, x, y, promote);
 
-  // state を刷新する
-  state.board = shogi.board;
-  state.hands = shogi.hands;
-  state.selectedBox = {};
-  state.movableBoxes = [];
-  state.turn = shogi.turn;
-  state.moveCount++;
-  state.sfen = _getCurrentSfen();
-  state.sfenOf[state.moveCount] = state.sfen;
+  turnAround();
 }
 
 function drop(x, y) {
@@ -174,14 +179,8 @@ function drop(x, y) {
   console.log(x, y, selectedHand);
   shogi.drop(x, y, selectedHand.kind);
 
-  // state を刷新する
-  state.board = shogi.board;
-  state.hands = shogi.hands;
-  state.selectedHand = {};
-  state.droppableBoxes = [];
-  state.turn = shogi.turn;
+  turnAround();
 }
-
 
 function getHandsSammary(color) {
   if (!shogi) {
@@ -195,23 +194,24 @@ class Game extends Component {
   constructor(props) {
     super(props);
     this.emitter = props.emitter;
+    this.emitter.on("moveNext", (nextMove) => {
+      console.log("fire moveNext", nextMove);
+      const { fromX, fromY, toX, toY } = parseMoveSFEN(nextMove);
+      shogi.move(fromX, fromY, toX, toY, false); // promote は後で考える
+
+      turnAround();
+    });
+
     this.emitter.on("ai", (data) => {
       const { bestmove, bestpv } = data;
       console.log("fire ai", bestmove);
       const { fromX, fromY, toX, toY } = parseMoveSFEN(bestmove);
       shogi.move(fromX, fromY, toX, toY, false); // promote は後で考える
 
-      // state を刷新する
-      state.board = shogi.board;
-      state.hands = shogi.hands;
-      state.selectedBox = {};
-      state.movableBoxes = [];
-      state.turn = shogi.turn;
-      state.moveCount++;
-      state.sfen = _getCurrentSfen();
-      state.bestpv = bestpv;
-      state.sfenOf[state.moveCount] = state.sfen;
+      turnAround();
     });
+
+
   }
 
   componentDidMount(props) {
