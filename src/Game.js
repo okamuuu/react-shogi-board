@@ -319,13 +319,13 @@ class Game extends Component {
         </Hands>
         {/*
         <button onClick={() => console.log(state.sfenOf[state.moveCount-1])}>待った</button>
-        */}
         <div>
           {sfen}
         </div>
         <div>
           {JSON.stringify(bestpv)}
         </div>
+        */}
       </div>
     );
   }
