@@ -188,6 +188,7 @@ function turnAround() {
   state.hands = shogi.hands;
   state.selectedBox = {};
   state.movableBoxes = [];
+  state.droppableBoxes = [];
 
   state.turn = shogi.turn;
   state.moveCount++;
