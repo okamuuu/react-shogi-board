@@ -40,7 +40,10 @@ function _getCurrentSfen() {
   return shogi.toSFENString(state.moveCount);
 }
 
-// TODO: ちゃんと考える
+function isDropMove(string) {
+  return string.match(/\*/);
+}
+
 function parseMoveSFEN(string) {
   const chars = string.split('');
 
@@ -61,6 +64,39 @@ function parseMoveSFEN(string) {
     toX: parseInt(chars[2], 10),
     toY: table[chars[3]]
   }
+}
+
+function parseDropMoveSFEN(string) {
+  const chars = string.split('');
+
+  const kindOf = {
+    P: 'FU',
+    L: 'KY',
+    N: 'KE',
+    S: 'GI',
+    G: 'KI',
+    B: 'KA',
+    R: 'HI',
+  }
+
+  const table = {
+    a: 1,
+    b: 2,
+    c: 3,
+    d: 4,
+    e: 5,
+    f: 6,
+    g: 7,
+    h: 8,
+    i: 9
+  }
+
+  return {
+    kind: kindOf[chars[0]],
+    x: parseInt(chars[2], 10),
+    y: table[chars[3]]
+  }
+
 }
 
 // TODO: to hash data if we need
@@ -168,7 +204,6 @@ function move(x, y) {
   }
 
   shogi.move(selectedBox.x, selectedBox.y, x, y, promote);
-
   turnAround();
 }
 
@@ -176,9 +211,7 @@ function drop(x, y) {
   console.log("drop");
   const { selectedHand } = state;
 
-  console.log(x, y, selectedHand);
   shogi.drop(x, y, selectedHand.kind);
-
   turnAround();
 }
 
@@ -197,17 +230,23 @@ class Game extends Component {
     this.emitter.on("moveNext", (nextMove) => {
       console.log("fire moveNext", nextMove);
       const { fromX, fromY, toX, toY } = parseMoveSFEN(nextMove);
-      shogi.move(fromX, fromY, toX, toY, false); // promote は後で考える
-
+      shogi.move(fromX, fromY, toX, toY, false); // TODO: promote
       turnAround();
     });
 
     this.emitter.on("ai", (data) => {
       const { bestmove, bestpv } = data;
       console.log("fire ai", bestmove);
-      const { fromX, fromY, toX, toY } = parseMoveSFEN(bestmove);
-      shogi.move(fromX, fromY, toX, toY, false); // promote は後で考える
 
+      if (isDropMove(bestmove)) {
+        const { x, y, kind } = parseDropMoveSFEN(bestmove);
+        shogi.drop(x, y, kind);
+        turnAround();
+        return;
+      }
+
+      const { fromX, fromY, toX, toY } = parseMoveSFEN(bestmove);
+      shogi.move(fromX, fromY, toX, toY, false); // TODO: promote
       turnAround();
     });
 

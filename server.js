@@ -13,7 +13,7 @@ function getBestMove(sfen) {
 
   // posigion は typo ?
   const q = qs.stringify({
-    byoyomi: 10,
+    byoyomi: 1,
     // posigion: sfen
     position: `sfen ${sfen}`
   });
