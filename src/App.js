@@ -23,6 +23,11 @@ class App extends Component {
     super(props);
     this.state = {nextMove: ""};
     this.emitter = new EventEmitter();
+    this.emitter.on("turnAround", (color) => {
+      if (color === 1) {
+        this.handleClickAI();
+      }
+    });
   }
 
   handleChange(event) {
@@ -35,11 +40,8 @@ class App extends Component {
   }
 
   async handleClickAI() {
-    console.log(this.game.getCurrentSfen());
     const result = await getBestMove(this.game.getCurrentSfen());
-    console.log(result.data.bestmove);
     this.emitter.emit("ai", result.data);
-    // this.emitter.emit("moveNext", result.data.bestmove);
   }
 
   render() {

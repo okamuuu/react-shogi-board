@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { store, view } from 'react-easy-state'; // store is as observable
+
 import _ from 'lodash';
 
 import Board from './components/Board';
@@ -11,6 +12,7 @@ const { Shogi, Color } = require("shogi.js");
 const ShogiPiece = require("shogi.js").Piece;
 
 let shogi; // Business logic will be set here here.
+let emitter;
 
 const state = store({
   board: [[], [], [], [], [], [], [], [], []],
@@ -36,7 +38,6 @@ function setInitialState(shogi) {
 }
 
 function _getCurrentSfen() {
-  console.log(state.moveCount);
   return shogi.toSFENString(state.moveCount);
 }
 
@@ -191,6 +192,8 @@ function turnAround() {
   state.moveCount++;
   state.sfen = _getCurrentSfen();
   state.sfenOf[state.moveCount] = state.sfen;
+
+  emitter.emit("turnAround", state.turn);
 }
 
 function move(x, y) {
@@ -208,9 +211,7 @@ function move(x, y) {
 }
 
 function drop(x, y) {
-  console.log("drop");
   const { selectedHand } = state;
-
   shogi.drop(x, y, selectedHand.kind);
   turnAround();
 }
@@ -227,6 +228,7 @@ class Game extends Component {
   constructor(props) {
     super(props);
     this.emitter = props.emitter;
+    emitter = this.emitter; // TODO: リファクタリング
     this.emitter.on("moveNext", (nextMove) => {
       console.log("fire moveNext", nextMove);
       const { fromX, fromY, toX, toY } = parseMoveSFEN(nextMove);
@@ -313,7 +315,9 @@ class Game extends Component {
             <Hand onClick={() => handleClickHand(Color.Black, kind)} key={kind} kind={kind} count={blackHandsSammary[kind]} />
           )) }
         </Hands>
+        {/*
         <button onClick={() => console.log(state.sfenOf[state.moveCount-1])}>待った</button>
+        */}
         <div>
           {sfen}
         </div>
