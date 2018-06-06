@@ -6,7 +6,7 @@ const axios = require('axios');
 const app = express();
 
 // TODO: 一瞬お借りします!!
-const url = "https://17xn1ovxga.execute-api.ap-northeast-1.amazonaws.com/production/gikou";
+// const url = "https://17xn1ovxga.execute-api.ap-northeast-1.amazonaws.com/production/gikou";
 //  __?byoyomi=1&position="lnsgkg1nl/1r5s1/pppppp1pp/6p2/4B4/2P6/PP1PPPPPP/7R1/LNSGKGSNL w b 1"
 
 function getBestMove(sfen) {

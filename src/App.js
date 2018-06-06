@@ -12,10 +12,15 @@ const url = "https://t3ayycpoqg.execute-api.ap-northeast-1.amazonaws.com/dev/";
 function getBestMove(sfen) {
 
   const q = qs.stringify({
-    sfen
+    byoyomi: 1,
+    sfen: `sfen ${sfen}`
   });
 
   return axios.get(`${url}/api/gikou?${q}`).catch(console.error);
+}
+
+function warmup() {
+  return axios.get(`${url}/api/setup`).catch(console.error);
 }
 
 class App extends Component {
@@ -29,6 +34,7 @@ class App extends Component {
         this.handleClickAI();
       }
     });
+    warmup();
   }
 
   handleChange(event) {
