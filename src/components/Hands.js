@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 
-const baseColor = `#666`
+// const baseColor = `#666`
 
 export const Hands = styled.div`
   height: 1em;

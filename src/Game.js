@@ -8,7 +8,6 @@ import Piece from './components/Piece';
 import { Hands, Hand } from './components/Hands';
 
 import {
-  getCurrentSfen,
   isDropMove,
   parseMoveSFEN,
   parseDropMoveSFEN,
@@ -29,6 +28,7 @@ class Game extends Component {
       hands: [],
       selectedBox: {},
       selectedHand: {},
+      lastMovedBox: {},
       movableBoxes: [],
       droppableBoxes: [],
       moveCount: 1,
@@ -40,17 +40,19 @@ class Game extends Component {
 
     this.emitter.on("ai", (data) => {
       const { bestmove, bestpv } = data;
-      console.log("fire ai", bestmove);
+      console.log("fire ai", bestmove, bestpv);
 
       if (isDropMove(bestmove)) {
         const { x, y, kind } = parseDropMoveSFEN(bestmove);
         this.state.shogi.drop(x, y, kind);
+        this.setState({lastMovedBox: {x, y}})
         this.finishTurn();
         return;
       }
 
       const { fromX, fromY, toX, toY, promote } = parseMoveSFEN(bestmove);
       this.state.shogi.move(fromX, fromY, toX, toY, promote);
+      this.setState({lastMovedBox: {x: toX, y: toY}})
       this.finishTurn();
     });
   }
@@ -130,13 +132,6 @@ class Game extends Component {
     this.emitter.emit("turnAround", shogi.turn);
   }
 
-  handleClickHand(color, kind) {
-    if (_.isEmpty(this.state.selectedHand)) {
-      this.selectHand(color, kind);
-      return;
-    }
-  }
-
   reset() {
     this.setState({
       selectedBox: {},
@@ -144,6 +139,10 @@ class Game extends Component {
       movableBoxes: [],
       droppableBoxes: []
     })
+  }
+
+  isLastMovedBox(x, y) {
+    return this.state.lastMovedBox.x === x && this.state.lastMovedBox.y === y;
   }
 
   handleClickBox(x, y) {
@@ -174,13 +173,12 @@ class Game extends Component {
   }
 
   render() {
-    const { shogi, board, hands, turn, sfen, bestpv } = this.state;
+    const { shogi, board } = this.state;
 
     const getHandsSammary = (color) => {
       if (_.isEmpty(shogi)) {
         return {}
       }
-      console.log(shogi);
       return shogi.getHandsSummary(color);
     }
 
@@ -219,7 +217,7 @@ class Game extends Component {
           {gameRows.map(({piece, x, y}) => (
             <Box key={x+"-"+y} overlay={isMovableBox(this.state, x, y) || isDroppableBox(this.state, x, y)} onClick={() => this.handleClickBox(x, y)}>
               {
-                piece && (<Piece color={piece.color} kind={piece.kind} />)
+                piece && (<Piece color={piece.color} kind={piece.kind} blink={this.isLastMovedBox(x, y)} />)
               }
             </Box>
           ))}

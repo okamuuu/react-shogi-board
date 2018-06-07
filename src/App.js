@@ -48,6 +48,7 @@ class App extends Component {
 
   async handleClickAI() {
     const result = await getBestMove(this.game.getCurrentSfen());
+    console.log(result.data);
     this.emitter.emit("ai", result.data);
   }
 
@@ -55,7 +56,7 @@ class App extends Component {
     return (
       <div>
         <div style={{textAlign: "center"}}>
-          <a href="https://github.com/gikou-official/Gikou" target="_blank">技巧と対戦</a>
+          <h1>技巧v2.0.2</h1>
         </div>
         <Game emitter={this.emitter} observable={this.observable} ref={(game) => { this.game = game }} />
         <div style={{textAlign: "center"}}>

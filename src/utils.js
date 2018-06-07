@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Shogi, Color, Piece as ShogiPiece } from "shogi.js";
+import { Color, Piece as ShogiPiece } from "shogi.js";
 
 export function getCurrentSfen(shogi, state) {
   return shogi.toSFENString(state.moveCount);
