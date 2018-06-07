@@ -74,6 +74,7 @@ class App extends Component {
         <Game emitter={this.emitter} observable={this.observable} ref={(game) => { this.game = game }} />
         <div style={{textAlign: "center"}}>
           <p>戦況: {(pv.score_cp || 0) * - 1} {situation}</p>
+          <p>{JSON.stringify(pv)}</p>
           {/*
           <label>
             Next Move:

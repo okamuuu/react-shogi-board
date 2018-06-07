@@ -92,3 +92,23 @@ export function canPromote(kind, color, fromY, toY) {
   return true;
 }
 
+
+
+export function getKingPosition(color, board) {
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+  // 全ての position をチェック
+  let position = {};
+
+  // TODO: 途中で見つかったら loop を抜ける
+  numbers.forEach(y => {
+    numbers.forEach(x => {
+      const piece = board[x - 1][y - 1] || {};
+      if (piece.color === color && piece.kind === "OU") {
+        position = {x, y}
+      }
+    });
+  });
+
+  return position;
+}

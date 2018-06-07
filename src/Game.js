@@ -14,6 +14,7 @@ import {
   isMovableBox, // not util
   isDroppableBox, // not util
   canPromote,
+  getKingPosition
 } from './utils';
 
 const { Shogi, Color } = require("shogi.js");
@@ -81,6 +82,9 @@ class Game extends Component {
     if (!piece || this.state.shogi.turn !== piece.color) {
       return;
     }
+
+    const kingPosition = getKingPosition(this.state.shogi.turn, this.state.board);
+
     const movablePoints = this.state.shogi.getMovesFrom(x, y);
     this.setState({
       selectedBox: {x, y},
