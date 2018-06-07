@@ -27,7 +27,10 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {nextMove: ""};
+    this.state = {
+      nextMove: "",
+      pv: {}
+    };
     this.emitter = new EventEmitter();
     this.emitter.on("turnAround", (color) => {
       if (color === 1) {
@@ -49,10 +52,20 @@ class App extends Component {
   async handleClickAI() {
     const result = await getBestMove(this.game.getCurrentSfen());
     console.log(result.data);
+    this.setState({pv: result.data.bestpv});
     this.emitter.emit("ai", result.data);
   }
 
   render() {
+    const { pv } = this.state;
+
+    let situation = "互角";
+    if (pv.score_cp < -500) {
+      situation = "優勢";
+    } else if (pv.score_cp > 500) {
+      situation = "劣勢";
+    }
+
     return (
       <div>
         <div style={{textAlign: "center"}}>
@@ -60,6 +73,7 @@ class App extends Component {
         </div>
         <Game emitter={this.emitter} observable={this.observable} ref={(game) => { this.game = game }} />
         <div style={{textAlign: "center"}}>
+          <p>戦況: {(pv.score_cp || 0) * - 1} {situation}</p>
           {/*
           <label>
             Next Move:
