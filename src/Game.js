@@ -37,6 +37,7 @@ class Game extends Component {
       moveCount: 1,
       turn: 0,
       sfen: "",
+      histories: [] // TODO: histories は UI が担う役割ではない気がする
     }
 
     this.emitter = props.emitter;
@@ -132,7 +133,8 @@ class Game extends Component {
   }
 
   finishTurn() {
-    const { shogi, moveCount } = this.state;
+    const { shogi, moveCount, histories } = this.state;
+    const sfen = this.getCurrentSfen();
     this.setState({
       board: shogi.board,
       hands: shogi.hands,
@@ -141,8 +143,10 @@ class Game extends Component {
       droppableBoxes: [],
       turn: shogi.turn,
       moveCount: moveCount + 1,
+      histories: Object.assign([], histories).push(sfen),
+      sfen
     })
-    this.emitter.emit("turnAround", shogi.turn);
+    this.emitter.emit("finishTurn", shogi.turn);
   }
 
   reset() {
@@ -228,7 +232,11 @@ class Game extends Component {
         </Hands>
         <Board>
           {gameRows.map(({piece, x, y}) => (
-            <Box key={x+"-"+y} overlay={isMovableBox(this.state, x, y) || isDroppableBox(this.state, x, y)} onClick={() => this.handleClickBox(x, y)}>
+            <Box key={x+"-"+y}
+              overlay={isMovableBox(this.state, x, y) || isDroppableBox(this.state, x, y)}
+              strong={this.isLastMovedBox(x, y)}
+              onClick={() => this.handleClickBox(x, y)}
+            >
               {
                 piece && (<Piece color={piece.color} kind={piece.kind} blink={this.isLastMovedBox(x, y)} />)
               }

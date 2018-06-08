@@ -147,8 +147,6 @@ export function isChecked(color, board) {
     const movablePoints = tmpShogi.getMovesFrom(x, y);
     const check = _.find(movablePoints, ({to}) => to.x === kingPosition.x && to.y === kingPosition.y);
     if (check) {
-      console.log("=======");
-      console.log(check);
       return true;
     }
   }
