@@ -69,7 +69,7 @@ class App extends Component {
     return (
       <div>
         <div style={{textAlign: "center"}}>
-          <h1>技巧v2.0.2</h1>
+          <h1 style={{fontSize: "1em"}}>技巧v2.0.2</h1>
         </div>
         <Game emitter={this.emitter} observable={this.observable} ref={(game) => { this.game = game }} />
         <div style={{textAlign: "center"}}>

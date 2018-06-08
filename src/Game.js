@@ -263,7 +263,7 @@ class Game extends Component {
           {gameRows.map(({piece, x, y}) => (
             <Box key={x+"-"+y}
               overlay={isMovableBox(this.state, x, y) || isDroppableBox(this.state, x, y)}
-              strong={this.isLastMovedBox(x, y)}
+              strong={!isMovableBox(this.state, x, y) && this.isLastMovedBox(x, y)}
               onClick={() => this.handleClickBox(x, y)}
             >
               {
