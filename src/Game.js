@@ -14,7 +14,9 @@ import {
   isMovableBox, // not util
   isDroppableBox, // not util
   canPromote,
-  getKingPosition
+  getKingPosition,
+  getPieces,
+  isChecked
 } from './utils';
 
 const { Shogi, Color } = require("shogi.js");
@@ -83,7 +85,7 @@ class Game extends Component {
       return;
     }
 
-    const kingPosition = getKingPosition(this.state.shogi.turn, this.state.board);
+    // const checked = isChecked(this.state.shogi.turn, this.state.board);
 
     const movablePoints = this.state.shogi.getMovesFrom(x, y);
     this.setState({
@@ -104,8 +106,17 @@ class Game extends Component {
   }
 
   move(x, y) {
-    const { shogi, selectedBox } = this.state;
+    const { shogi, board, selectedBox } = this.state;
     const piece = shogi.get(selectedBox.x, selectedBox.y);
+
+    const nextBoard = _.cloneDeep(board);
+    nextBoard[selectedBox.x][selectedBox.y] = undefined;
+    nextBoard[x][y] = piece;
+
+    if (isChecked(shogi.turn, nextBoard)) {
+      window.alert("王手です");
+      return;
+    }
 
     let promote = false;
     if (canPromote(piece.kind, piece.color, selectedBox.y, y)) {
