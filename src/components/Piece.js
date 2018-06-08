@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import styled, { css } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 
 const Color = {
   Black: 0,
@@ -12,55 +12,63 @@ const Wrapper = styled.div`
   `}
 `
 
-const Icon = props => {
-  return (
-    <span onClick={props.onClick} style={{color:"#222",fontSize: "1.4em", cursor: "pointer"}}>{props.children}</span>
-  )
-};
+const blink = keyframes`
+  0% {opacity: 1}
+  100% {opacity: 0.6;}
+`;
 
+const Icon = styled.span`
+  color: #222;
+  font-size: 1.4em;
+  cursor: pointer;
 
-const Base = props => {
-  switch (props.kind) {
+  ${props => props.blink && css`
+    animation: ${blink} 1.5s ease-in-out infinite alternate;
+  `}
+`;
+
+function getCharFromKind(kind) {
+  switch (kind) {
     case "FU":
-      return (<Icon>歩</Icon>)
+      return "歩"
     case "KY":
-      return (<Icon>香</Icon>)
+      return "香"
     case "KE":
-      return (<Icon>桂</Icon>)
+      return "桂"
     case "GI":
-      return (<Icon>銀</Icon>)
+      return "銀"
     case "KI":
-      return (<Icon>金</Icon>)
+      return "金"
     case "TO":
-      return (<Icon>と</Icon>)
+      return "と"
     case "NY":
-      return (<Icon>杏</Icon>)
+      return "杏"
     case "NK":
-      return (<Icon>圭</Icon>)
+      return "圭"
     case "NG":
-      return (<Icon>全</Icon>)
+      return "全"
     case "KA":
-      return (<Icon>角</Icon>)
+      return "角"
     case "HI":
-      return (<Icon>飛</Icon>)
+      return "飛"
     case "OU":
       // 玉と王があるけど考慮しないことにする
-      return (<Icon>玉</Icon>)
+      return "玉"
     case "UM":
-      return (<Icon>馬</Icon>)
+      return "馬"
     case "RY":
-      return (<Icon>龍</Icon>)
+      return "龍"
     default:
-      return (<div></div>)
+      return ""
   }
 }
 
 export default class Piece extends Component {
   render() {
-    const {color, kind} = this.props;
+    const {color, kind, blink} = this.props;
     return (
       <Wrapper upSideDown={color === Color.White}>
-        <Base kind={kind} />
+        <Icon blink={blink}>{getCharFromKind(kind)}</Icon>
       </Wrapper>
     )
   }

@@ -92,3 +92,67 @@ export function canPromote(kind, color, fromY, toY) {
   return true;
 }
 
+
+
+export function getKingPosition(color, board) {
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+  // 全ての position をチェック
+  let position = {};
+
+  // TODO: 途中で見つかったら loop を抜ける
+  numbers.forEach(y => {
+    numbers.forEach(x => {
+      const piece = board[x - 1][y - 1] || {};
+      if (piece.color === color && piece.kind === "OU") {
+        position = {x, y}
+      }
+    });
+  });
+
+  return position;
+}
+
+export function getPiecePoints(color, board) {
+
+  const points = [];
+
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+  numbers.forEach(y => {
+    numbers.forEach(x => {
+      const piece = board[x - 1][y - 1] || {};
+      if (piece.color === color) {
+        points.push({x, y});
+      }
+    });
+  });
+
+  return points;
+}
+
+export function replaceBoard(board, from, to) {
+
+
+}
+
+export function isChecked(color, board) {
+
+  const kingPosition = getKingPosition(color, board);
+  const enemyColor = color === 0 ? 1 : 0;
+  const enemyPiecePoints = getPiecePoints(enemyColor, board);
+
+  const tmpShogi = new Shogi();
+  tmpShogi.board = Object.assign([], board);
+
+  for (let i = 0; i < enemyPiecePoints.length; i++) {
+    const point = enemyPiecePoints[i];
+    const {x, y} = point;
+    const movablePoints = tmpShogi.getMovesFrom(x, y);
+    if (_.find(movablePoints, ({to}) => to.x === kingPosition.x && to.y === kingPosition.y)) {
+      return true;
+    }
+  }
+
+  return false;
+}
