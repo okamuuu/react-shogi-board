@@ -106,7 +106,6 @@ export function getKingPosition(color, board) {
       const piece = board[x - 1][y - 1] || {};
       if (piece.color === color && piece.kind === "OU") {
         position = {x, y}
-        console.log(position);
       }
     });
   });
