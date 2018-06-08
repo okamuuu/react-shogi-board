@@ -106,6 +106,7 @@ export function getKingPosition(color, board) {
       const piece = board[x - 1][y - 1] || {};
       if (piece.color === color && piece.kind === "OU") {
         position = {x, y}
+        console.log(position);
       }
     });
   });
@@ -131,11 +132,6 @@ export function getPiecePoints(color, board) {
   return points;
 }
 
-export function replaceBoard(board, from, to) {
-
-
-}
-
 export function isChecked(color, board) {
 
   const kingPosition = getKingPosition(color, board);
@@ -149,7 +145,10 @@ export function isChecked(color, board) {
     const point = enemyPiecePoints[i];
     const {x, y} = point;
     const movablePoints = tmpShogi.getMovesFrom(x, y);
-    if (_.find(movablePoints, ({to}) => to.x === kingPosition.x && to.y === kingPosition.y)) {
+    const check = _.find(movablePoints, ({to}) => to.x === kingPosition.x && to.y === kingPosition.y);
+    if (check) {
+      console.log("=======");
+      console.log(check);
       return true;
     }
   }

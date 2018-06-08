@@ -14,8 +14,8 @@ import {
   isMovableBox, // not util
   isDroppableBox, // not util
   canPromote,
-  getKingPosition,
-  getPieces,
+  // getKingPosition,
+  // getPieces,
   isChecked
 } from './utils';
 
@@ -85,8 +85,6 @@ class Game extends Component {
       return;
     }
 
-    // const checked = isChecked(this.state.shogi.turn, this.state.board);
-
     const movablePoints = this.state.shogi.getMovesFrom(x, y);
     this.setState({
       selectedBox: {x, y},
@@ -110,8 +108,8 @@ class Game extends Component {
     const piece = shogi.get(selectedBox.x, selectedBox.y);
 
     const nextBoard = _.cloneDeep(board);
-    nextBoard[selectedBox.x][selectedBox.y] = undefined;
-    nextBoard[x][y] = piece;
+    nextBoard[selectedBox.x - 1][selectedBox.y -1] = undefined;
+    nextBoard[x - 1][y - 1] = piece;
 
     if (isChecked(shogi.turn, nextBoard)) {
       window.alert("王手です");
