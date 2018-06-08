@@ -32,7 +32,7 @@ class App extends Component {
       pv: {}
     };
     this.emitter = new EventEmitter();
-    this.emitter.on("turnAround", (color) => {
+    this.emitter.on("finishTurn", (color) => {
       if (color === 1) {
         this.handleClickAI();
       }

@@ -37,6 +37,7 @@ class Game extends Component {
       moveCount: 1,
       turn: 0,
       sfen: "",
+      histories: [] // TODO: histories は UI が担う役割ではない気がする
     }
 
     this.emitter = props.emitter;
@@ -72,6 +73,7 @@ class Game extends Component {
       moveCount: 1,
       turn: 0,
       sfen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1",
+      histories: ["lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"]
     })
   }
 
@@ -88,7 +90,8 @@ class Game extends Component {
     const movablePoints = this.state.shogi.getMovesFrom(x, y);
     this.setState({
       selectedBox: {x, y},
-      movableBoxes: movablePoints.map(x => x.to)
+      movableBoxes: movablePoints.map(x => x.to),
+      droppableBoxes: []
     });
   }
 
@@ -99,7 +102,8 @@ class Game extends Component {
     }
     this.setState({
       selectedHand: {kind},
-      droppableBoxes:  shogi.getDropsBy(color).map(x => x.to)
+      movableBoxes: [],
+      droppableBoxes: shogi.getDropsBy(color).map(x => x.to)
     });
   }
 
@@ -132,17 +136,21 @@ class Game extends Component {
   }
 
   finishTurn() {
-    const { shogi, moveCount } = this.state;
+    const { shogi, moveCount, histories } = this.state;
+    const sfen = this.getCurrentSfen();
     this.setState({
-      board: shogi.board,
-      hands: shogi.hands,
+      board: _.cloneDeep(shogi.board),
+      hands: _.cloneDeep(shogi.hands),
       selectedBox: {},
       movableBoxes: [],
       droppableBoxes: [],
       turn: shogi.turn,
       moveCount: moveCount + 1,
+      histories: Object.assign([], [...histories, sfen]),
+      sfen
     })
-    this.emitter.emit("turnAround", shogi.turn);
+    this.emitter.emit("finishTurn", shogi.turn);
+    console.log(this.state.histories);
   }
 
   reset() {
@@ -183,6 +191,35 @@ class Game extends Component {
       this.selectHand(color, kind);
       return;
     }
+  }
+
+  handleClickWait() {
+    console.log("handleClickWait");
+    const { shogi, moveCount, histories } = this.state;
+
+    const length = histories.length;
+    console.log(length);
+    if (length < 2) {
+      return;
+    }
+    const prevSfen = histories[length - 3];
+    console.log(prevSfen);
+
+    this.state.shogi.initializeFromSFENString(prevSfen);
+    this.state.shogi.turn = 0;
+
+    this.setState({
+      board: shogi.board,
+      hands: shogi.hands,
+      lastMovedBox: {},
+      selectedBox: {},
+      movableBoxes: [],
+      droppableBoxes: [],
+      turn: 0,
+      moveCount: moveCount - 2,
+      histories: Object.assign([], [...histories.slice(length - 2)]),
+      sfen: prevSfen
+    });
   }
 
   render() {
@@ -228,7 +265,11 @@ class Game extends Component {
         </Hands>
         <Board>
           {gameRows.map(({piece, x, y}) => (
-            <Box key={x+"-"+y} overlay={isMovableBox(this.state, x, y) || isDroppableBox(this.state, x, y)} onClick={() => this.handleClickBox(x, y)}>
+            <Box key={x+"-"+y}
+              overlay={isMovableBox(this.state, x, y) || isDroppableBox(this.state, x, y)}
+              strong={this.isLastMovedBox(x, y)}
+              onClick={() => this.handleClickBox(x, y)}
+            >
               {
                 piece && (<Piece color={piece.color} kind={piece.kind} blink={this.isLastMovedBox(x, y)} />)
               }
@@ -240,6 +281,7 @@ class Game extends Component {
             <Hand onClick={() => this.handleClickHand(Color.Black, kind)} key={kind} kind={kind} count={blackHandsSammary[kind]} />
           )) }
         </Hands>
+        <button onClick={this.handleClickWait.bind(this)}>待った</button>
       </div>
     );
   }
