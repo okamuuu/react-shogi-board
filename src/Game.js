@@ -90,7 +90,8 @@ class Game extends Component {
     const movablePoints = this.state.shogi.getMovesFrom(x, y);
     this.setState({
       selectedBox: {x, y},
-      movableBoxes: movablePoints.map(x => x.to)
+      movableBoxes: movablePoints.map(x => x.to),
+      droppableBoxes: []
     });
   }
 
@@ -101,7 +102,8 @@ class Game extends Component {
     }
     this.setState({
       selectedHand: {kind},
-      droppableBoxes:  shogi.getDropsBy(color).map(x => x.to)
+      movableBoxes: [],
+      droppableBoxes: shogi.getDropsBy(color).map(x => x.to)
     });
   }
 
@@ -137,8 +139,8 @@ class Game extends Component {
     const { shogi, moveCount, histories } = this.state;
     const sfen = this.getCurrentSfen();
     this.setState({
-      board: shogi.board,
-      hands: shogi.hands,
+      board: _.cloneDeep(shogi.board),
+      hands: _.cloneDeep(shogi.hands),
       selectedBox: {},
       movableBoxes: [],
       droppableBoxes: [],
