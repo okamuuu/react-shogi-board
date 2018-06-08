@@ -150,7 +150,6 @@ class Game extends Component {
       sfen
     })
     this.emitter.emit("finishTurn", shogi.turn);
-    console.log(this.state.histories);
   }
 
   reset() {
@@ -194,16 +193,13 @@ class Game extends Component {
   }
 
   handleClickWait() {
-    console.log("handleClickWait");
     const { shogi, moveCount, histories } = this.state;
 
     const length = histories.length;
-    console.log(length);
     if (length < 2) {
       return;
     }
     const prevSfen = histories[length - 3];
-    console.log(prevSfen);
 
     this.state.shogi.initializeFromSFENString(prevSfen);
     this.state.shogi.turn = 0;
