@@ -59,6 +59,32 @@ class Game extends Component {
       this.setState({lastMovedBox: {x: toX, y: toY}})
       this.finishTurn();
     });
+
+    this.emitter.on("wait", (data) => {
+      console.log("fire wait");
+      const { shogi, moveCount, histories } = this.state;
+      const length = histories.length;
+      if (length < 2) {
+        return;
+      }
+      const prevSfen = histories[length - 3];
+
+      this.state.shogi.initializeFromSFENString(prevSfen);
+      this.state.shogi.turn = 0;
+
+      this.setState({
+        board: shogi.board,
+        hands: shogi.hands,
+        lastMovedBox: {},
+        selectedBox: {},
+        movableBoxes: [],
+        droppableBoxes: [],
+        turn: 0,
+        moveCount: moveCount - 2,
+        histories: Object.assign([], [...histories.slice(length - 2)]),
+        sfen: prevSfen
+      });
+    });
   }
 
   componentDidMount(props) {
@@ -277,7 +303,6 @@ class Game extends Component {
             <Hand onClick={() => this.handleClickHand(Color.Black, kind)} key={kind} kind={kind} count={blackHandsSammary[kind]} />
           )) }
         </Hands>
-        <button onClick={this.handleClickWait.bind(this)}>待った</button>
       </div>
     );
   }

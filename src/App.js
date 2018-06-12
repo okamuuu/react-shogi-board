@@ -56,6 +56,10 @@ class App extends Component {
     this.emitter.emit("ai", result.data);
   }
 
+  async handleClickWait() {
+    this.emitter.emit("wait");
+  }
+
   render() {
     const { pv } = this.state;
 
@@ -71,8 +75,17 @@ class App extends Component {
         <div style={{textAlign: "center"}}>
           <h1 style={{fontSize: "1em"}}>技巧v2.0.2</h1>
         </div>
-        <Game emitter={this.emitter} observable={this.observable} ref={(game) => { this.game = game }} />
+        <Game
+          emitter={this.emitter}
+          observable={this.observable}
+          ref={(game) => { this.game = game }}
+        />
         <div style={{textAlign: "center"}}>
+          <div>
+            <button onClick={this.handleClickWait.bind(this)}>Wait</button>
+            {" "}
+            <button onClick={this.handleClickAI.bind(this)}>Hint</button>
+          </div>
           <p>戦況: {(pv.score_cp || 0) * - 1} {situation}</p>
           <p>{JSON.stringify(pv)}</p>
           {/*
