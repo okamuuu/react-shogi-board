@@ -37,7 +37,8 @@ class Game extends Component {
       moveCount: 1,
       turn: 0,
       sfen: "",
-      histories: [] // TODO: histories は UI が担う役割ではない気がする
+      histories: [],
+      reversed: false
     }
 
     this.emitter = props.emitter;
@@ -82,8 +83,15 @@ class Game extends Component {
         turn: 0,
         moveCount: moveCount - 2,
         histories: Object.assign([], [...histories.slice(length - 2)]),
-        sfen: prevSfen
+        sfen: prevSfen,
+        reversed: false,
       });
+    });
+
+    this.emitter.on("reverse", (data) => {
+      console.log("fire reverse");
+      const { reversed } = this.state;
+      this.setState({reversed : !reversed});
     });
   }
 
@@ -218,43 +226,17 @@ class Game extends Component {
     }
   }
 
-  handleClickWait() {
-    const { shogi, moveCount, histories } = this.state;
-
-    const length = histories.length;
-    if (length < 2) {
-      return;
-    }
-    const prevSfen = histories[length - 3];
-
-    this.state.shogi.initializeFromSFENString(prevSfen);
-    this.state.shogi.turn = 0;
-
-    this.setState({
-      board: shogi.board,
-      hands: shogi.hands,
-      lastMovedBox: {},
-      selectedBox: {},
-      movableBoxes: [],
-      droppableBoxes: [],
-      turn: 0,
-      moveCount: moveCount - 2,
-      histories: Object.assign([], [...histories.slice(length - 2)]),
-      sfen: prevSfen
-    });
-  }
-
   render() {
-    const { shogi, board } = this.state;
+    const { shogi, board, reversed } = this.state;
 
-    const getHandsSammary = (color) => {
+    const getHandsSummary = (color) => {
       if (_.isEmpty(shogi)) {
         return {}
       }
       return shogi.getHandsSummary(color);
     }
 
-    const isReversed = false;
+    const isReversed = this.state.reversed;
     const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     const reverseNumbers = [9, 8, 7, 6, 5, 4, 3, 2, 1];
 
@@ -275,14 +257,14 @@ class Game extends Component {
       })
     }
 
-    const whiteHandsSammary = getHandsSammary(Color.White);
-    const blackHandsSammary = getHandsSammary(Color.Black);
+    const topHandsSummary = getHandsSummary(isReversed ? Color.Black : Color.White);
+    const bottomHandsSummary = getHandsSummary(isReversed ? Color.White : Color.Black);
 
     return (
       <div style={{margin: "0 auto", maxWidth: "360px"}}>
         <Hands>
-          { Object.keys(whiteHandsSammary).filter(kind => whiteHandsSammary[kind] > 0).map(kind => (
-            <Hand onClick={() => this.handleClickHand(Color.White, kind)} key={kind} kind={kind} count={whiteHandsSammary[kind]} />
+          { Object.keys(topHandsSummary).filter(kind => topHandsSummary[kind] > 0).map(kind => (
+            <Hand onClick={() => this.handleClickHand(Color.White, kind)} key={kind} kind={kind} count={topHandsSummary[kind]} />
           )) }
         </Hands>
         <Board>
@@ -293,14 +275,14 @@ class Game extends Component {
               onClick={() => this.handleClickBox(x, y)}
             >
               {
-                piece && (<Piece color={piece.color} kind={piece.kind} blink={this.isLastMovedBox(x, y)} />)
+                piece && (<Piece reversed={isReversed} color={piece.color} kind={piece.kind} blink={this.isLastMovedBox(x, y)} />)
               }
             </Box>
           ))}
         </Board>
         <Hands>
-          { Object.keys(blackHandsSammary).filter(kind => blackHandsSammary[kind] > 0).map(kind => (
-            <Hand onClick={() => this.handleClickHand(Color.Black, kind)} key={kind} kind={kind} count={blackHandsSammary[kind]} />
+          { Object.keys(bottomHandsSummary).filter(kind => bottomHandsSummary[kind] > 0).map(kind => (
+            <Hand onClick={() => this.handleClickHand(Color.Black, kind)} key={kind} kind={kind} count={bottomHandsSummary[kind]} />
           )) }
         </Hands>
       </div>

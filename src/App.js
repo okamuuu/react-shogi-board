@@ -60,6 +60,10 @@ class App extends Component {
     this.emitter.emit("wait");
   }
 
+  async handleClickReverse() {
+    this.emitter.emit("reverse");
+  }
+
   render() {
     const { pv } = this.state;
 
@@ -85,6 +89,8 @@ class App extends Component {
             <button onClick={this.handleClickWait.bind(this)}>Wait</button>
             {" "}
             <button onClick={this.handleClickAI.bind(this)}>Hint</button>
+            {" "}
+            <button onClick={this.handleClickReverse.bind(this)}>Reverse</button>
           </div>
           <p>戦況: {(pv.score_cp || 0) * - 1} {situation}</p>
           <p>{JSON.stringify(pv)}</p>

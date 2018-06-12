@@ -65,9 +65,10 @@ function getCharFromKind(kind) {
 
 export default class Piece extends Component {
   render() {
-    const {color, kind, blink} = this.props;
+    const {color, kind, blink, reversed} = this.props;
+    const upSideDown = reversed ? color === Color.Black : color === Color.White;
     return (
-      <Wrapper upSideDown={color === Color.White}>
+      <Wrapper upSideDown={upSideDown}>
         <Icon blink={blink}>{getCharFromKind(kind)}</Icon>
       </Wrapper>
     )
