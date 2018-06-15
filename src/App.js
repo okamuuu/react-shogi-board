@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Switch, Route, Link, withRouter } from 'react-router-dom'
 import Gikou from './Gikou';
+import Footer from './components/Footer';
 
 const Home = () => (
   <div>
@@ -9,16 +10,35 @@ const Home = () => (
   </div>
 )
 
+const Site = ({children}) => (
+  <div style={{display: "flex", minHeight: "100vh", flexDirection: "column"}}>
+    {children}
+  </div>
+)
+
+const Content = ({children}) => (
+  <div style={{flex: 1}}>{children}</div>
+)
+
+const Routes = withRouter(({history}) => {
+
+  const handleClickFooter = val => history.push(val);
+
+  return (
+    <Site>
+      <Content>
+          <Route exact path='/' component={Home} />
+          <Route exact path='/gikou' component={Gikou} />
+      </Content>
+      <Footer onClick={handleClickFooter}/>
+    </Site>
+  )
+
+})
+
 const App = () => (
   <BrowserRouter>
-    <div>
-      <ul>
-        <li><Link to='/'>Home</Link></li>
-        <li><Link to='/gikou'>Gikou</Link></li>
-      </ul>
-      <Route exact path='/' component={Home} />
-      <Route exact path='/gikou' component={Gikou} />
-    </div>
+    <Routes />
   </BrowserRouter>
 )
 
