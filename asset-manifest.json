@@ -1,4 +1,13 @@
 {
-  "main.js": "static/js/main.abebba4e.js",
-  "main.js.map": "static/js/main.abebba4e.js.map"
+  "files": {
+    "main.js": "/react-shogi-board/static/js/main.a74850bc.chunk.js",
+    "main.js.map": "/react-shogi-board/static/js/main.a74850bc.chunk.js.map",
+    "runtime~main.js": "/react-shogi-board/static/js/runtime~main.93faeb87.js",
+    "runtime~main.js.map": "/react-shogi-board/static/js/runtime~main.93faeb87.js.map",
+    "static/js/2.2a37c918.chunk.js": "/react-shogi-board/static/js/2.2a37c918.chunk.js",
+    "static/js/2.2a37c918.chunk.js.map": "/react-shogi-board/static/js/2.2a37c918.chunk.js.map",
+    "index.html": "/react-shogi-board/index.html",
+    "precache-manifest.3e628af76e1f5690a8f1026173e1dc68.js": "/react-shogi-board/precache-manifest.3e628af76e1f5690a8f1026173e1dc68.js",
+    "service-worker.js": "/react-shogi-board/service-worker.js"
+  }
 }
